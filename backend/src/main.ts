@@ -1,4 +1,6 @@
-import express from 'express';
+import express from "express";
+import moment from "moment";
+import { calc_solar_angle } from './solar_calc'
 const app = express();
 const port = 3000;
 //route notes
@@ -16,6 +18,15 @@ app.get('/solar-angle', (req,res) => {
   //validate input
   //calculate solar angle
   //calculate time of solar angle based on input
+  let data= req.query;
+  //need to convert to string
+  
+  let lat:number = parseInt(data.lat);
+  let lng:number = parseInt(data.lng;
+  let tz = data.tz;
+  //check for issues in input
+  let time = moment(String(data.time));
+  res.send({angle: calc_solar_angle(lat,lng,time,tz)});
 });
 app.listen(port, () => {
   return console.log(`server is listening on ${port}`);
