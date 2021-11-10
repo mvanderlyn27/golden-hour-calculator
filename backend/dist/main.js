@@ -17,19 +17,28 @@ app.get('/', (req, res) => {
     res.send('The sedulous hyena ate the antelope!');
 });
 //take in location/time of year, return golden hour time
-app.get('/solar-angle', (req, res) => {
+app.get('/solar-angle', (req, res, next) => {
     //read in location
     //optionally read in time
     //validate input
     //calculate solar angle
     //calculate time of solar angle based on input
     let data = req.query;
-    let lat = data.lat;
-    let lng = data.lng;
-    let tz = data.tz;
-    //check for issues in input
-    let time = (0, moment_1.default)(String(data.time));
-    res.send({ angle: (0, solar_calc_1.calc_solar_angle)(time, lat, lng, tz) });
+    //need to convert to string
+    if (typeof (data.lat) === "string" && typeof (data.lng) === "string" && typeof (data.tz) === "string") {
+        let lat_str = data.lat;
+        let lng_str = data.lng;
+        let tz_str = data.tz;
+        let lat = parseInt(lat_str);
+        let lng = parseInt(lng_str);
+        let tz = parseInt(tz_str);
+        //check for issues in input
+        let time = (0, moment_1.default)(String(data.time));
+        res.send({ angle: (0, solar_calc_1.calc_solar_angle)(lat, lng, time.toDate(), tz) });
+    }
+    else {
+        next(Error("lat/lng/tz can't be parsed properly"));
+    }
 });
 app.listen(port, () => {
     return console.log(`server is listening on ${port}`);

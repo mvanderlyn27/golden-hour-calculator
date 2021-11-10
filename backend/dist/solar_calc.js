@@ -36,32 +36,54 @@ function get_days(now) {
     var diff = (now.getTime() - start.getTime()) + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000);
     var oneDay = 1000 * 60 * 60 * 24;
     var day = Math.floor(diff / oneDay);
-    console.log('Day of year: ' + day);
-    return day;
+    return day - 1;
+}
+function toDegrees(num) {
+    return num * 180 / Math.PI;
+}
+function toRadians(num) {
+    return num * Math.PI / 180;
 }
 //delta tz, is time diff local from utc
 //could pass in days/hours instead of actual date object
 function calc_solar_angle(lat, lng, time, delta_tz) {
     //maybe take in request timezone?
     let days = get_days(time); //not right type of day, needs to be # of days since beginning of year, where jan 1 is 0
-    let declination_angle = Math.asin(Math.sin(-23.44) * Math.cos(360 / 365.24 * (days + 10) + 360 / Math.PI * 0.0167 * Math.sin(360 / 365.24 * (days - 2))));
+    console.log('days:', days);
+    console.log('test:', toDegrees(Math.sin(-23.44)));
+    let declination_angle = toDegrees(Math.asin(Math.sin(toRadians(-23.44)) * Math.cos(toRadians(360 / 365.24 * (days + 10) + 360 / Math.PI * 0.0167 * Math.sin(toRadians(360 / 365.24 * (days - 2)))))));
+    console.log('declination:', declination_angle);
     //angle in degrees
     let hours = time.getHours(); //should only be hours 1-24
-    let fractional_year = 2 * Math.PI / 365 * (days - 1 + (hours - 12) / 24);
+    console.log('hours:', hours);
+    //need to account for leap years
+    let isLeap = new Date(time.getFullYear(), 1, 29).getMonth() == 1;
+    let fractional_year = 2 * Math.PI / (isLeap ? 366 : 365) * (days - 1 + (hours - 12) / 24);
+    console.log('fractional_years:', fractional_year);
+    let dec_offset = 0.006918 - 0.399912 * Math.cos(fractional_year) + 0.070257 * Math.sin(fractional_year) - 0.006758 * Math.cos(2 * fractional_year) + 0.000907 * Math.sin(2 * fractional_year) - 0.002697 * Math.cos(3 * fractional_year) + 0.00148 * Math.sin(3 * fractional_year);
+    declination_angle += dec_offset;
+    console.log('dec2', dec_offset, 'dec', declination_angle);
     //in minutes 
     let equation_of_time = 229.18 * (0.000075 + 0.001868 * Math.cos(fractional_year) - 0.032077 * Math.sin(fractional_year) - 0.014615 * Math.cos(2 * fractional_year) - 0.04089 * Math.sin(2 * fractional_year));
+    console.log("eot:", equation_of_time);
     // lng is negative when west, positive when east
     let long_v = (4 * (lng - 15 * delta_tz));
+    console.log("long_v:", long_v);
     // calcs in mins, divides by 60 to get hours
     let offset = (equation_of_time + long_v) / 60;
-    let local_solar_time = time.getHours(); //hours in day 1-24`
-    let elevation_hour_angle = (local_solar_time + offset) / 4 - 180;
+    console.log("offset:", offset);
+    let local_solar_time = hours; //hours in day 1-24`
+    console.log("LST: ", local_solar_time);
+    let elevation_hour_angle = 15 * ((local_solar_time + offset) - 12);
+    console.log("h:", elevation_hour_angle);
     let solar_angle = Math.asin(Math.sin(lat) * Math.sin(declination_angle) + Math.cos(lat) * Math.cos(declination_angle) * Math.cos(elevation_hour_angle));
     return solar_angle;
 }
 exports.calc_solar_angle = calc_solar_angle;
-let time = new Date();
-let angel = calc_solar_angle(38, 77, time, time.getTimezoneOffset());
+let time = new Date("2021-10-10 17:03:00");
+console.log(time);
+console.log(time.getTimezoneOffset());
+let angel = calc_solar_angle(38, 77, time, time.getTimezoneOffset() / 60);
 console.log('sea:', angel);
 /*
 re-read paper/other forms to see why whats different
