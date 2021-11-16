@@ -31,10 +31,9 @@ app.get('/solar-angle', (req, res, next) => {
         let tz_str = data.tz;
         let lat = parseInt(lat_str);
         let lng = parseInt(lng_str);
-        let tz = parseInt(tz_str);
         //check for issues in input
         let time = (0, moment_1.default)(String(data.time));
-        res.send({ angle: (0, solar_calc_1.calc_solar_angle)(lat, lng, time.toDate(), tz) });
+        res.send({ angle: (0, solar_calc_1.calc_sun_position)(time.toDate(), lat, lng) });
     }
     else {
         next(Error("lat/lng/tz can't be parsed properly"));

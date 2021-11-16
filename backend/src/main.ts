@@ -1,6 +1,6 @@
 import express from "express";
 import moment from "moment";
-import { calc_solar_angle } from './solar_calc'
+import { calc_sun_position } from './solar_calc'
 const app = express();
 const port = 3000;
 //route notes
@@ -28,10 +28,9 @@ app.get('/solar-angle', (req,res,next) => {
     
     let lat:number = parseInt(lat_str);
     let lng:number = parseInt(lng_str);
-    let tz:number = parseInt(tz_str);
     //check for issues in input
     let time = moment(String(data.time));
-    res.send({angle: calc_solar_angle(lat,lng,time.toDate(),tz)});
+    res.send({angle: calc_sun_position(time.toDate(),lat,lng)});
   }
   else{
     next(Error("lat/lng/tz can't be parsed properly"));

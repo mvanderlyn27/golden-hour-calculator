@@ -90,7 +90,7 @@ def parse_digits(value):
         groups = m.groups()
     except:
         pass
-    print groups
+    print(groups)
     res = [a if a else 0 for a in groups]
     for i in range(len(res)):
         val = float(res[i])
@@ -137,25 +137,35 @@ def leapyear(year):
 def leapYearsSince1949(year):
     leapYearsTo1949 = 472 # Number of leap years is theoretical based on current leap year rules.
     leapDaysInAYear = 0.2425
+    print('year',year)
     leapYearsToGivenYear = int(year * leapDaysInAYear)
+    print('leap days in a year', leapYearsToGivenYear)
     leapYearsBetweenYears = leapYearsToGivenYear - leapYearsTo1949
+    print('leap years between years',leapYearsBetweenYears)
     return leapYearsBetweenYears
 
 def calc_time(year, month, day, hour=12, minute=0, sec=0):
     # Get day of the year, e.g. Feb 1 = 32, Mar 1 = 61 on leap years
     month_days = [0,31,28,31,30,31,30,31,31,30,31,30]
     day = day + sum(month_days[:month])
+    print('day',day)
     leapdays = leapyear(year) and day >= 60 and (not (month==2 and day==60))
+    print('leapday?',leapdays)
     if leapdays: day += 1
 
     # Get Julian date - 2400000
     hour = hour + minute / 60.0 + sec / 3600.0 # hour plus fraction
+    print('hour',hour)
     delta = year - 1949
+    print('delta',delta)
     leap = leapYearsSince1949(year) # former leapyears
+    print('leap',leap)
     jd = 32916.5 + (delta * 365) + leap + day + (hour / 24.0)
+    print('jd',jd)
     # The input to the Astronomer's almanac is the difference between
     # the Julian date and JD 2451545.0 (noon, 1 January 2000)
     time = jd - 51545
+    print('time',time)
     return time
 
 def meanLongitudeDegrees(time):
@@ -215,26 +225,39 @@ def sun_position(year, month, day, hour=12, minute=0, sec=0,
                 lat = 46.5, longitude = 6.5):
 
     time = calc_time(year, month, day, hour, minute, sec)
+    print('time',time)
     hour = hour + minute / 60.0 + sec / 3600.0
+    print('hour',hour)
     # Ecliptic coordinates  
     mnlong = meanLongitudeDegrees(time)   
+    print('mnlong',mnlong)
     mnanom = meanAnomalyRadians(time)  
+    print('mnamom',mnanom)
     eclong = eclipticLongitudeRadians(mnlong, mnanom)     
+    print('eclong',eclong)
     oblqec =  eclipticObliquityRadians(time)
+    print('oblqec',oblqec)
     # Celestial coordinates
     ra = rightAscensionRadians(oblqec, eclong)
+    print('ra',ra)
     dec = rightDeclinationRadians(oblqec, eclong)
+    print('dec',dec)
     # Local coordinates
     gmst = greenwichMeanSiderealTimeHours(time, hour)  
+    print('gmst',gmst)
     lmst =localMeanSiderealTimeRadians(gmst, longitude)
+    print('lmst',lmst)
     # Hour angle
     ha = hourAngleRadians(lmst, ra)
+    print('ha',ha)
     # Latitude to radians
     lat = math.radians(lat)
     # Azimuth and elevation
     el = elevationRadians(lat, dec, ha)
+    print('el',el)
     #azJ = solarAzimuthRadiansJosh(lat, dec, ha, el)
     azC = solarAzimuthRadiansCharlie(lat, dec, ha)
+    print('time',time)
 
     elevation = math.degrees(el)
 ##    azimuthJ  = math.degrees(azJ)
@@ -267,41 +290,42 @@ if __name__ == '__main__':
                (80,-120,   55.89, 17.74),
                (0, 0,     2.26, 66.89)
                ]
-    print "Noon July 1 2014 at 0,0 = 2.26, 66.89"
-    print "",sun_position(2014,7,1, lat=0, longitude=0)
-    print "Noon Dec 22 2012 at 41,0 = 180.03, 25.6"
-    print "",sun_position(2012, 12, 22, lat=41, longitude=0)
-    print "Noon Dec 22 2012 at -41,0 = 359.09, 72.44"
-    print "",sun_position(2012, 12, 22, lat=-41, longitude=0)
-    print
+    print("Noon July 1 2014 at 0,0 = 2.26, 66.89")
+    print("",sun_position(2014,7,1, lat=0, longitude=0))
+    print("",sun_position(2021,11,14, lat=40, longitude=-105))
+    # print("Noon Dec 22 2012 at 41,0 = 180.03, 25.6")
+    # print("",sun_position(2012, 12, 22, lat=41, longitude=0))
+    # print("Noon Dec 22 2012 at -41,0 = 359.09, 72.44")
+    # print ("",sun_position(2012, 12, 22, lat=-41, longitude=0))
+    # print()
 
-    for s in samples:
-        lat, lon, az, el = s
-        print "\nFor lat,long:", lat, lon,
-        calc_az, calc_el = sun_position(2014,7,1, lat=lat, longitude=lon)
-        az_ok = abs(az-calc_az) < 0.5
-        el_ok = abs(el-calc_el) < 0.5
-        if not(az_ok and el_ok):
-            print "\n Azimuth (Noaa,calc)   = %4.2f %4.2f (error %4.2f)" %(az, calc_az, abs(az-calc_az))
-            print " Elevation (Noaa,calc) = %4.2f %4.2f (error %4.2f)" %(el, calc_el, abs(el-calc_el))
-        else:
-            print" OK (<0.5 error)"
+    # for s in samples:
+    #     lat, lon, az, el = s
+    #     print("\nFor lat,long:", lat, lon)
+    #     calc_az, calc_el = sun_position(2014,7,1, lat=lat, longitude=lon)
+    #     az_ok = abs(az-calc_az) < 0.5
+    #     el_ok = abs(el-calc_el) < 0.5
+    #     if not(az_ok and el_ok):
+    #         print("\n Azimuth (Noaa,calc)   = %4.2f %4.2f (error %4.2f)" %(az, calc_az, abs(az-calc_az)))
+    #         print(" Elevation (Noaa,calc) = %4.2f %4.2f (error %4.2f)" %(el, calc_el, abs(el-calc_el)))
+    #     else:
+    #         print(" OK (<0.5 error)")
 
-    #
-    print "\nTesting float to string"
-    latlong = [(38.72409, -9.140625), (-11.953349, -76.992187), (12, 12), (-22.5, 22.5), (-33.125,-33.125), (44, -44)]
-    for (lat, lon) in latlong:
-        print lat, lon, "=", latlong_float_conversion(lat, lon)
-    #
-    print "\nTesting string parsing"
-    latlong = ["38°43'26.724N 9°8'26.25W",
-               "33°7'30S 33°7'30W",
-               "38° 43' 26.724 N 9° 8' 26.25 W",
-               "33° 7' 30 S 33°7W",
-               "11° 57' 12.0578S  76° 59' 31.875 W",
-               "11° 57.200964S  76° 59.53125W",
-               "38.72409°N 9.140625°W"
-               ]
-    for s in latlong:
-        print s
-        print "", latlong_str_conversion(s)
+    # #
+    # print("\nTesting float to string")
+    # latlong = [(38.72409, -9.140625), (-11.953349, -76.992187), (12, 12), (-22.5, 22.5), (-33.125,-33.125), (44, -44)]
+    # for (lat, lon) in latlong:
+    #     print(lat, lon, "=", latlong_float_conversion(lat, lon))
+    # #
+    # print("\nTesting string parsing")
+    # latlong = ["38°43'26.724N 9°8'26.25W",
+    #            "33°7'30S 33°7'30W",
+    #            "38° 43' 26.724 N 9° 8' 26.25 W",
+    #            "33° 7' 30 S 33°7W",
+    #            "11° 57' 12.0578S  76° 59' 31.875 W",
+    #            "11° 57.200964S  76° 59.53125W",
+    #            "38.72409°N 9.140625°W"
+    #            ]
+    # for s in latlong:
+    #     print(s)
+    #     print("", latlong_str_conversion(s))
