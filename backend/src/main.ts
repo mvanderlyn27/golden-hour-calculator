@@ -1,6 +1,6 @@
 import express from "express";
 import moment from "moment";
-import { calc_sun_position } from './solar_calc'
+import { calc_sun_position } from './solar_calc_old_2'
 const app = express();
 const port = 3000;
 //route notes
