@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const moment_1 = __importDefault(require("moment"));
-const solar_calc_1 = require("./solar_calc");
+const solar_calc_old_2_1 = require("./solar_calc_old_2");
 const app = (0, express_1.default)();
 const port = 3000;
 //route notes
@@ -33,7 +33,7 @@ app.get('/solar-angle', (req, res, next) => {
         let lng = parseInt(lng_str);
         //check for issues in input
         let time = (0, moment_1.default)(String(data.time));
-        res.send({ angle: (0, solar_calc_1.calc_sun_position)(time.toDate(), lat, lng) });
+        res.send({ angle: (0, solar_calc_old_2_1.calc_sun_position)(time.toDate(), lat, lng) });
     }
     else {
         next(Error("lat/lng/tz can't be parsed properly"));

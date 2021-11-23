@@ -1,5 +1,4 @@
-import { calc_time_for_degree } from "./solar_calc_old";
-
+import  {spa_data, FUNC_CODES, TERMS, TERMX, TERMS2, JD, SUN}  from './types';
 const PI = 3.1415926535897932384626433832795028841971;
 const SUN_RADIUS = 0.26667;
 const L_COUNT = 6;
@@ -10,13 +9,6 @@ const Y_COUNT = 63;
 const L_MAX_SUBCOUNT = 64;
 const B_MAX_SUBCOUNT = 5;
 const R_MAX_SUBCOUNT = 40;
-
-enum FUNC_CODES{ SPA_ZA, SPA_ZA_INC, SPA_ZA_RTS, SPA_ALL};
-enum TERMS{TERM_A, TERM_B, TERM_C, TERM_COUNT};
-enum TERMX{TERM_X0, TERM_X1, TERM_X2, TERM_X4, TERM_X_COUNT};
-enum TERMS2{TERM_PSI_A, TERM_PSI_B, TERM_EPS_C, TERM_EPS_D, TERM_PE_COUNT};
-enum JD{JD_MINUS, JS_ZERO, JD_PLUS, JD_COUNT};
-enum SUN{SUN_TRANSIT, SUN_RISE, SUN_SET, SUN_COUNT};
 
 let TERM_Y_COUNT, TERM_X_COUNT;
 
@@ -501,13 +493,13 @@ function julian_ephemeris_century(jde){
 	return (jde-2451545.0)/36525.0;
 }
 function julian_ephemeris_millennium(jce){
-	return (jce/10.);
+	return (jce/10.0);
 }
 //might need count back
 function earth_periodic_term_summation(terms:Array<Array<number>>, jme){
 	let sum = 0;
 	terms.forEach((term) => {
-		sum += term[0]*Math.cos(term[1]+ term[2]*jme)
+		sum += term[0]*Math.cos(term[1]+ term[2]*jme);
 	});	
 	return sum;
 }
@@ -691,10 +683,9 @@ function sun_hour_angle_at_rise_set(latitude,delta_zero, h0_prime){
 }
 function approx_sun_rise_and_set(m_rts, h0){
 	const h0_dfrac = h0/360.0;
-	let new_m_rts = {};
-	new_m_rts["sun_rise"] = limit_zero2one(m_rts.sun_transit - h0_dfrac);
-	new_m_rts["sun_set"] = limit_zero2one(m_rts.sun_transit + h0_dfrac); 
-	new_m_rts["sun_transit"] = limit_zero2one(m_rts.sun_transit);
+	m_rts.sun_rise = limit_zero2one(m_rts.sun_transit - h0_dfrac);
+	m_rts.sun_set = limit_zero2one(m_rts.sun_transit + h0_dfrac); 
+	m_rts.sun_transit = limit_zero2one(m_rts.sun_transit);
 }
 function rts_alpha_delta_prime(ad, n){
 	let a = ad.jd_zero - ad.jd_zero;
@@ -712,7 +703,7 @@ function rts_sun_altitude(latitude, delta_prime, h_prime){
 function sun_rise_and_set(m_rts, h_rts, delta_prime, latitude, h_prime, h0_prime, sun){
 	return m_rts[sun] + (h_rts[sun] - h0_prime) / (360.0*Math.cos(deg2rad(delta_prime[sun]))*Math.cos(deg2rad(latitude))*Math.sin(deg2rad(h_prime[sun])));
 }
-function calculate_geocentric_sun_right_acension_and_declination(spa){
+function calculate_geocentric_sun_right_ascension_and_declination(spa:spa_data){
 	let x = [];
 	spa.jc = julian_century(spa.jd);
 	spa.jde = julian_ephemeris_day(spa.jd, spa.delta_t);
@@ -738,7 +729,7 @@ function calculate_geocentric_sun_right_acension_and_declination(spa){
 	spa.x3 = argument_latitude_moon(spa.jce);
 	x.push(spa.x3);
 
-	spa.x4 = ascending_longitude_moon(spa.ce);
+	spa.x4 = ascending_longitude_moon(spa.jce);
 	x.push(spa.x4);
 
 	nutation_longitude_and_obliquity(spa.jce, x, spa.del_psi, spa.del_epsilon);
@@ -747,29 +738,152 @@ function calculate_geocentric_sun_right_acension_and_declination(spa){
 	spa.epsilon = ecliptic_true_obliquity(spa.del_epsilon, spa.epsilon0);
 	
 	spa.del_tau = aberration_correction(spa.r);
-	spa.lambda = apparent_sun_longitude(spa.theta, spa.del_psi, spa.del_tau);
+	spa.lamda = apparent_sun_longitude(spa.theta, spa.del_psi, spa.del_tau);
 	spa.nu0 = greenwich_mean_sidereal_time(spa.jd, spa.jc);
 	spa.nu = greenwich_sidereal_time( spa.nu0, spa.del_psi, spa.epsilon);
 
-	spa.alpha = geocentric_right_ascension(spa.lamda, spa.epsilon, spa.lambda);
-	spa.delta = geocentric_declination(spa.beta, spa.epsilon, spa.lambda);
-	return spa;
+	spa.alpha = geocentric_right_ascension(spa.lamda, spa.epsilon, spa.lamda);
+	spa.delta = geocentric_declination(spa.beta, spa.epsilon, spa.lamda);
 }
-function calculate_eot_and_sun_rise_transit_set(spa){
-	let sun_rts = {};
+
+function calculate_eot_and_sun_rise_transit_set(spa:spa_data){
+	let sun_rts:spa_data;
 	let nu, m, h0, n, i;
 	let alpha, delta, m_rts, nu_rts, h_rts, alpha_prime, delta_prime, h_prime = [];
 	let h0_prime = -1 *(SUN_RADIUS + spa.atmos_refract);
 	sun_rts = spa;
 	m = sun_mean_longitude(spa.jme);
-	spa.eot = eot(m, spa.alpha, spa.de_psi, spa.epsilon);
+	spa.eot = eot(m, spa.alpha, spa.del_psi, spa.epsilon);
 	
-	sun_rts["hour"] = 0;
-	sun_rts["minute"] = 0;
-	sun_rts["second"] = 0;
+	sun_rts.hour = 0;
+	sun_rts.minute = 0;
+	sun_rts.second = 0;
 
-	
-}
-function spa_calculate(spa){
+	sun_rts.delta_ut1 = 0.0;
+	sun_rts.timezone = 0.0;
 
+	sun_rts.jd = julian_day (sun_rts.year, sun_rts.month, sun_rts.day, sun_rts.hour, sun_rts.minute, sun_rts.second, sun_rts.delta_ut1, sun_rts.timezone);
+	calculate_geocentric_sun_right_ascension_and_declination(sun_rts);	
+	nu = sun_rts.nu;
+	sun_rts.delta_t = 0;
+	sun_rts.jd--;
+	for(let i = 0; i < JD.JD_COUNT; i++){
+		calculate_geocentric_sun_right_ascension_and_declination(sun_rts);
+		alpha[i] = sun_rts.alpha;
+		delta[i] = sun_rts.delta;
+		sun_rts.jd++;
+	}	
+	m_rts[SUN.SUN_TRANSIT] = approx_sun_transit_time(alpha[JD.JD_ZERO], spa.longitude, nu)
+	h0 = sun_hour_angle_at_rise_set(spa.latitude, delta[JD.JD_ZERO], h0_prime);
+	if(h0>=0){
+		approx_sun_rise_and_set(m_rts, h0);
+		for( let j = 0; j < SUN.SUN_COUNT; j++){
+		nu_rts[j] = nu + 360.985647*m_rts[j];
+		n = m_rts[j] + spa.delta_t/86400.0;
+		alpha_prime[j] = rts_alpha_delta_prime(alpha, n);
+		delta_prime[j] = rts_alpha_delta_prime(delta, n);
+
+		h_prime[j] = limit_degrees180pm(nu_rts[j] + spa.longitude - alpha_prime[j]);
+		h_rts[j] = rts_sun_altitude(spa.latitude,delta_prime[j], h_prime[j]);
+	}
+	spa.srha = h_prime[SUN.SUN_RISE];
+	spa.ssha = h_prime[SUN.SUN_SET];
+	spa.sta = h_rts[SUN.SUN_TRANSIT];
+
+	spa.suntransit = dayfrac_to_local_hr(m_rts[SUN.SUN_TRANSIT] -h_prime[SUN.SUN_TRANSIT] /360.0, spa.timezone);
+	spa.sunrise = dayfrac_to_local_hr(sun_rise_and_set(m_rts, h_rts, delta_prime, spa.latitude, h_prime, h0_prime, SUN.SUN_RISE), spa.timezone);
+	spa.sunset = dayfrac_to_local_hr(sun_rise_and_set(m_rts, h_rts, delta_prime, spa.latitude, h_prime, h0_prime, SUN.SUN_SET), spa.timezone);
+} else {
+	spa.srha = -99999;
+	spa.ssha = -99999;
+	spa.sta = -99999;
+	spa.suntransit = -99999;
+	spa.sunrise = -99999;
+	spa.sunset = -99999;
 }
+}
+function spa_calculate(spa:spa_data){
+	let result = validate_inputs(spa);
+	if(result === 0){
+		//this is good
+		spa.jd = julian_day (spa.year, spa.month, spa.day, spa.hour, spa.minute, spa.second, spa.delta_ut1, spa.timezone);
+		calculate_geocentric_sun_right_ascension_and_declination(spa);	
+		spa.h = observer_hour_angle(spa.nu, spa.longitude, spa.alpha);
+		spa.xi = sun_equitorial_horizontal_parallax(spa.r);
+
+		let out = right_acension_parallax_and_topocentric_dec(spa.latitude, spa.elevation, spa.xi, spa.h, spa.delta);
+		spa.del_alpha = out[0];
+		spa.delta_prime = out[1];
+
+		spa.alpha_prime = topocentric_right_ascension(spa.alpha, spa.del_alpha);
+		spa.h_prime = topocentric_local_hour_angle(spa.h, spa.del_alpha);
+		spa.e0 = topocentric_elevation_angle(spa.latitude, spa.delta_prime, spa.h_prime);
+		spa.del_e = atmospheric_refraction_correction(spa.pressure, spa.temperature, spa.atmos_refract, spa.e0);
+		spa.e = topocentric_elevation_angle_corrected(spa.e0, spa.del_e);
+
+		spa.zenith = topocentric_zenith_angle(spa.e);
+		spa.azimuth_astro = topocentric_azimuth_angle_astro(spa.h_prime, spa.latitude, spa.delta_prime);
+		spa.azimuth = topocentric_azimuth_angle(spa.azimuth_astro);
+
+		if(spa.function === FUNC_CODES.SPA_ZA_INC || spa.function === FUNC_CODES.SPA_ALL) {
+			spa.incidence = surface_incidence_angle(spa.zenith, spa.azimuth_astro, spa.azm_rotation, spa.slope);
+		}
+		if(spa.function === FUNC_CODES.SPA_ZA_RTS || spa.function === FUNC_CODES.SPA_ALL){
+			calculate_eot_and_sun_rise_transit_set
+		}
+	}
+	return result;
+}
+
+
+function test(){
+	let input_spa:spa_data = {
+		year: 2003,
+		month: 10,
+		day: 17,
+		hour: 12,
+		minute: 30,
+		second: 30,
+		pressure: 820,
+		temperature: 11,
+		delta_ut1: 0,
+		delta_t: 67,
+		timezone: -7.0,
+		longitude: -105.1786,
+		latitude: 39.742476,
+		atmos_refract: 0.5667,
+		elevation: 1830.14,
+		function: FUNC_CODES.SPA_ALL,
+		slope: 30,
+		azm_rotation: -10,
+	};
+	let result = spa_calculate(input_spa);
+	console.log("res:",input_spa);
+	let min = 60.0*(input_spa.sunrise - Math.round(input_spa.sunrise));
+	let sec = 60.0*(min - Math.round(min));
+	console.log("Sunrise:Local Time: "+(input_spa.sunrise)+":"+min+":"+sec);
+
+	min = 60.0*(input_spa.sunset - Math.round(input_spa.sunset));
+	sec = 60.0*(min - Math.round(min));
+	console.log("Sunset:  Local Time: "+(input_spa.sunset)+':'+ min+":"+sec);
+}
+test();
+
+/////////////////////////////////////////////
+// The output of this program should be:
+//
+//Julian Day:    2452930.312847 <- this is good
+//L:             2.401826e+01 degrees
+//B:             -1.011219e-04 degrees
+//R:             0.996542 AU
+//H:             11.105902 degrees
+//Delta Psi:     -3.998404e-03 degrees
+//Delta Epsilon: 1.666568e-03 degrees
+//Epsilon:       23.440465 degrees
+//Zenith:        50.111622 degrees
+//Azimuth:       194.340241 degrees
+//Incidence:     25.187000 degrees
+//Sunrise:       06:12:43 Local Time
+//Sunset:        17:20:19 Local Time
+//
+/////////////////////////////////////////////
