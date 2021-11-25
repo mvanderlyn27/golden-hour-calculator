@@ -501,7 +501,7 @@ function julian_ephemeris_century(jde) {
     return (jde - 2451545.0) / 36525.0;
 }
 function julian_ephemeris_millennium(jce) {
-    return (jce / 10.);
+    return (jce / 10.0);
 }
 //might need count back
 function earth_periodic_term_summation(terms, jme) {
@@ -798,6 +798,7 @@ function calculate_eot_and_sun_rise_transit_set(spa) {
 function spa_calculate(spa) {
     let result = validate_inputs(spa);
     if (result === 0) {
+        //this is good
         spa.jd = julian_day(spa.year, spa.month, spa.day, spa.hour, spa.minute, spa.second, spa.delta_ut1, spa.timezone);
         calculate_geocentric_sun_right_ascension_and_declination(spa);
         spa.h = observer_hour_angle(spa.nu, spa.longitude, spa.alpha);
@@ -856,7 +857,7 @@ test();
 /////////////////////////////////////////////
 // The output of this program should be:
 //
-//Julian Day:    2452930.312847
+//Julian Day:    2452930.312847 <- this is good
 //L:             2.401826e+01 degrees
 //B:             -1.011219e-04 degrees
 //R:             0.996542 AU
