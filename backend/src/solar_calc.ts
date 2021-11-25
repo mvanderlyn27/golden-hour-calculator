@@ -805,7 +805,7 @@ function calculate_eot_and_sun_rise_transit_set(spa:spa_data){
 function spa_calculate(spa:spa_data){
 	let result = validate_inputs(spa);
 	if(result === 0){
-		//this is good
+		//this is off by 2
 		spa.jd = julian_day (spa.year, spa.month, spa.day, spa.hour, spa.minute, spa.second, spa.delta_ut1, spa.timezone);
 		calculate_geocentric_sun_right_ascension_and_declination(spa);	
 		spa.h = observer_hour_angle(spa.nu, spa.longitude, spa.alpha);
