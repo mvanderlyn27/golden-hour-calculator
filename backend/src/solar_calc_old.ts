@@ -1,6 +1,6 @@
 // calculations to find solar angle from location/time, and to find time from location/solar angles
 
-import { couldStartTrivia } from "typescript";
+/*import { couldStartTrivia } from "typescript";
 import * as suncalc from 'suncalc';
 //gets day # accounting for daylight savings
 function get_days(now:Date){
@@ -49,11 +49,11 @@ function get_apparent_solar_time(time:Date, day_num:number, lng:number){
 function get_hour_angle(ast:number){
 	return (ast - 12) * 15;
 }
-/*
-declination angle - observer angle
-(tan δ – tan φ) ≥ 1 there is no sunset, i.e. 24 hours of daylight;
-(tan δ – tan φ) ≤ 1 there is no sunrise, i.e. 24 hours of darkness.
-*/
+
+// declination angle - observer angle
+// (tan δ – tan φ) ≥ 1 there is no sunset, i.e. 24 hours of daylight;
+// (tan δ – tan φ) ≤ 1 there is no sunrise, i.e. 24 hours of darkness.
+
 // returns solar elevation angle at lat/lng during time, in degrees
 // long is 180 to -180, for east to west
 export function calc_solar_angle(lat:number, lng:number, time:Date ){
@@ -93,7 +93,7 @@ console.log(times.goldenHour);
 let pos = suncalc.getPosition(time, 0,0);
 console.log(pos.altitude);
 console.log(toDegrees(pos.altitude));
-
+*/
 /*
 re-read paper/other forms to see why whats different
 */
