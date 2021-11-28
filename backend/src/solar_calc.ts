@@ -386,7 +386,7 @@ function deg2rad(deg){
 	return (PI/180.0)*deg;
 }
 function integer(val){
-	return Math.round(val);
+	return Math.floor(val);
 }
 function limit_degrees(deg){
 	let limited;
@@ -484,6 +484,7 @@ function julian_day (year, month, day, hour, minute, second, dut1, tz){
 	return julian_day;
 }
 function julian_century(jd){
+	//value slightly off
 	return (jd-2451545.0)/36524.0;
 }
 function julian_ephemeris_day(jd, delta_t){
@@ -499,6 +500,7 @@ function julian_ephemeris_millennium(jce){
 function earth_periodic_term_summation(terms:Array<Array<number>>, jme){
 	let sum = 0;
 	terms.forEach((term) => {
+		//for some reason sum is off each time compared to c file
 		sum += term[0]*Math.cos(term[1]+ term[2]*jme);
 	});	
 	return sum;
@@ -515,6 +517,7 @@ function earth_values(term_sum:Array<number>, jme){
 function earth_heliocentric_longitude(jme){
 	let sum:Array<number> = [];
 	for(let i = 0; i < L_COUNT; i++){
+		//these values are all off
 		sum.push(earth_periodic_term_summation(L_TERMS[i], jme)); 
 	}
 	return limit_degrees(rad2deg(earth_values(sum, jme)));
@@ -557,7 +560,7 @@ function argument_latitude_moon(jce){
     return third_order_polynomial(1.0/327270.0, -0.0036825, 483202.017538, 93.27191, jce);
 }
 function ascending_longitude_moon(jce){
-    return third_order_polynomial(1.0/327270.0, -0.0036825, 483202.017538, 93.27191, jce);
+    return third_order_polynomial(1.0/450000.0, 0.0020708, -1934.136261, 125.04452, jce);
 }
 function xy_term_summation(i, x:Array<number>){
 	let sum = 0;
@@ -600,6 +603,7 @@ function greenwich_sidereal_time(nu0, delta_psi, epsilon){
 function geocentric_right_ascension(lamda, epsilon, beta){
 	let lamda_rad   = deg2rad(lamda);
 	let epsilon_rad = deg2rad(epsilon);
+	//bug here
 	return limit_degrees(rad2deg(Math.atan2(Math.sin(lamda_rad)*Math.cos(epsilon_rad) - Math.tan(deg2rad(beta))*Math.sin(epsilon_rad), Math.cos(lamda_rad))));
 }
 function geocentric_declination(beta, epsilon, lamda){
@@ -705,9 +709,13 @@ function sun_rise_and_set(m_rts, h_rts, delta_prime, latitude, h_prime, h0_prime
 }
 function calculate_geocentric_sun_right_ascension_and_declination(spa:spa_data){
 	let x = [];
+	//slightly off
 	spa.jc = julian_century(spa.jd);
+	//good
 	spa.jde = julian_ephemeris_day(spa.jd, spa.delta_t);
+	//good
 	spa.jce = julian_ephemeris_century(spa.jde);
+	//good
 	spa.jme = julian_ephemeris_millennium(spa.jce);
 
 	spa.l = earth_heliocentric_longitude(spa.jme);
@@ -732,8 +740,10 @@ function calculate_geocentric_sun_right_ascension_and_declination(spa:spa_data){
 	spa.x4 = ascending_longitude_moon(spa.jce);
 	x.push(spa.x4);
 
-	nutation_longitude_and_obliquity(spa.jce, x, spa.del_psi, spa.del_epsilon);
-	
+	let out = nutation_longitude_and_obliquity(spa.jce, x, spa.del_psi, spa.del_epsilon);
+	spa.del_psi = out[0];
+	spa.del_epsilon = out[1];
+
 	spa.epsilon0 = ecliptic_mean_obliquity(spa.jme);
 	spa.epsilon = ecliptic_true_obliquity(spa.del_epsilon, spa.epsilon0);
 	
@@ -742,6 +752,7 @@ function calculate_geocentric_sun_right_ascension_and_declination(spa:spa_data){
 	spa.nu0 = greenwich_mean_sidereal_time(spa.jd, spa.jc);
 	spa.nu = greenwich_sidereal_time( spa.nu0, spa.del_psi, spa.epsilon);
 
+	//both of these return NaN
 	spa.alpha = geocentric_right_ascension(spa.lamda, spa.epsilon, spa.lamda);
 	spa.delta = geocentric_declination(spa.beta, spa.epsilon, spa.lamda);
 }
@@ -805,7 +816,7 @@ function calculate_eot_and_sun_rise_transit_set(spa:spa_data){
 function spa_calculate(spa:spa_data){
 	let result = validate_inputs(spa);
 	if(result === 0){
-		//this is off by 2
+		//fixed
 		spa.jd = julian_day (spa.year, spa.month, spa.day, spa.hour, spa.minute, spa.second, spa.delta_ut1, spa.timezone);
 		calculate_geocentric_sun_right_ascension_and_declination(spa);	
 		spa.h = observer_hour_angle(spa.nu, spa.longitude, spa.alpha);

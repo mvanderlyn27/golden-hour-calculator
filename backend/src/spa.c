@@ -120,6 +120,7 @@
 
 #include <math.h>
 #include "spa.h"
+#include <stdio.h>
 
 #define PI         3.1415926535897932384626433832795028841971
 #define SUN_RADIUS 0.26667
@@ -1138,7 +1139,7 @@ int spa_calculate(spa_data *spa)
     {
         spa->jd = julian_day (spa->year,   spa->month,  spa->day,       spa->hour,
 			                  spa->minute, spa->second, spa->delta_ut1, spa->timezone);
-
+        printf("jd: %d:",spa->jd);
         calculate_geocentric_sun_right_ascension_and_declination(spa);
 
         spa->h  = observer_hour_angle(spa->nu, spa->longitude, spa->alpha);
