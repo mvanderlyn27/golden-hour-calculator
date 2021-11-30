@@ -60,6 +60,11 @@ enum {
     SPA_ZA_RTS,       //calculate zenith, azimuth, and sun rise/transit/set values
     SPA_ALL,          //calculate all SPA output values
 };
+typedef struct 
+{
+    double lat;
+    double lng;
+} loc;
 
 typedef struct
 {

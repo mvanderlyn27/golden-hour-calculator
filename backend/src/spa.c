@@ -630,6 +630,8 @@ int validate_inputs(spa_data *spa)
 
     return 0;
 }
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 double julian_day (int year, int month, int day, int hour, int minute, double second, double dut1, double tz)
 {
@@ -1140,6 +1142,92 @@ int spa_calculate(spa_data *spa)
         spa->jd = julian_day (spa->year,   spa->month,  spa->day,       spa->hour,
 			                  spa->minute, spa->second, spa->delta_ut1, spa->timezone);
         printf("jd: %d:",spa->jd);
+        calculate_geocentric_sun_right_ascension_and_declination(spa);
+
+        spa->h  = observer_hour_angle(spa->nu, spa->longitude, spa->alpha);
+        spa->xi = sun_equatorial_horizontal_parallax(spa->r);
+
+        right_ascension_parallax_and_topocentric_dec(spa->latitude, spa->elevation, spa->xi,
+                                spa->h, spa->delta, &(spa->del_alpha), &(spa->delta_prime));
+
+        spa->alpha_prime = topocentric_right_ascension(spa->alpha, spa->del_alpha);
+        spa->h_prime     = topocentric_local_hour_angle(spa->h, spa->del_alpha);
+
+        spa->e0      = topocentric_elevation_angle(spa->latitude, spa->delta_prime, spa->h_prime);
+        spa->del_e   = atmospheric_refraction_correction(spa->pressure, spa->temperature,
+                                                         spa->atmos_refract, spa->e0);
+        spa->e       = topocentric_elevation_angle_corrected(spa->e0, spa->del_e);
+
+        spa->zenith        = topocentric_zenith_angle(spa->e);
+        spa->azimuth_astro = topocentric_azimuth_angle_astro(spa->h_prime, spa->latitude,
+                                                                           spa->delta_prime);
+        spa->azimuth       = topocentric_azimuth_angle(spa->azimuth_astro);
+
+        if ((spa->function == SPA_ZA_INC) || (spa->function == SPA_ALL))
+            spa->incidence  = surface_incidence_angle(spa->zenith, spa->azimuth_astro,
+                                                      spa->azm_rotation, spa->slope);
+
+        if ((spa->function == SPA_ZA_RTS) || (spa->function == SPA_ALL))
+            calculate_eot_and_sun_rise_transit_set(spa);
+    }
+
+    return result;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////
+int validate_inputs(spa_data *spa)
+{
+    if ((spa->year        < -2000) || (spa->year        > 6000)) return 1;
+    if ((spa->month       < 1    ) || (spa->month       > 12  )) return 2;
+    if ((spa->day         < 1    ) || (spa->day         > 31  )) return 3;
+    if ((spa->hour        < 0    ) || (spa->hour        > 24  )) return 4;
+    if ((spa->minute      < 0    ) || (spa->minute      > 59  )) return 5;
+    if ((spa->second      < 0    ) || (spa->second      >=60  )) return 6;
+    if ((spa->pressure    < 0    ) || (spa->pressure    > 5000)) return 12;
+    if ((spa->temperature <= -273) || (spa->temperature > 6000)) return 13;
+    if ((spa->delta_ut1   <= -1  ) || (spa->delta_ut1   >= 1  )) return 17;
+	if ((spa->hour        == 24  ) && (spa->minute      > 0   )) return 5;
+    if ((spa->hour        == 24  ) && (spa->second      > 0   )) return 6;
+
+    if (fabs(spa->delta_t)       > 8000    ) return 7;
+    if (fabs(spa->timezone)      > 18      ) return 8;
+    if (fabs(spa->longitude)     > 180     ) return 9;
+    if (fabs(spa->latitude)      > 90      ) return 10;
+    if (fabs(spa->atmos_refract) > 5       ) return 16;
+    if (     spa->elevation      < -6500000) return 11;
+
+    if ((spa->function == SPA_ZA_INC) || (spa->function == SPA_ALL))
+    {
+        if (fabs(spa->slope)         > 360) return 14;
+        if (fabs(spa->azm_rotation)  > 360) return 15;
+    }
+
+    return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+int validate_inputs_with_angle(spa_data *spa)
+{
+    if ((spa->year        < -2001) || (spa->year        > 6000)) return 1;
+    if ((spa->month       < 0    ) || (spa->month       > 12  )) return 2;
+    if ((spa->day         < 0    ) || (spa->day         > 31  )) return 3;
+
+    if (fabs(spa->timezone)      > 17      ) return 8;
+    if (fabs(spa->longitude)     > 179     ) return 9;
+    if (fabs(spa->latitude)      > 89      ) return 10;
+    if (spa->zenith > 89 || spa->zenith < -90) return 4;
+    return -1;
+}
+spa_calculate_time_from_angle(spa_data *spa){
+    int result;
+
+    result = validate_inputs_with_angle(spa);
+
+    if (result == 0)
+    {
+        //going to calc this minus the hour, minute and second
+        spa->jd = julian_day (spa->year,   spa->month,  spa->day,       spa->hour,
+			                  spa->minute, spa->second, spa->delta_ut1, spa->timezone);
         calculate_geocentric_sun_right_ascension_and_declination(spa);
 
         spa->h  = observer_hour_angle(spa->nu, spa->longitude, spa->alpha);

@@ -128,7 +128,7 @@ export function calc_sun_position(time:Date, lat:number, lng:number){
     let azC = solar_azimuth_radians_charlie(lat_radians, dec, ha)
 	return {"angle": toDegrees(el), "azimuth": toDegrees(azC)};
 }
-let date = new Date("2021-11-14 12:00:00");
+let date = new Date("2021-11-28 12:00:00");
 console.log(date);
 console.log(date.getHours());
 let data = calc_sun_position(date, 40, -105);

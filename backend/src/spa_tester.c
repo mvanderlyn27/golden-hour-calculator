@@ -95,6 +95,10 @@ void output_spa(spa_data spa)
         printf("sunset, local sunset time (+/- 30 seconds) [fractional hour]:    %.6f\n",spa.sunset);
 }
 
+
+int solar_angle(spa_data *spa){
+
+}
 int main (int argc, char *argv[])
 {
     spa_data spa;  //declare the SPA structure
@@ -102,23 +106,38 @@ int main (int argc, char *argv[])
     float min, sec;
 
     //enter required input values into SPA structure
-
-    spa.year          = 2003;
-    spa.month         = 10;
-    spa.day           = 17;
-    spa.hour          = 12;
-    spa.minute        = 30;
-    spa.second        = 30;
-    spa.timezone      = -7.0;
+    double year, month, day, hour, minute, second, timezone, longitude, latitude;
+    if(argc == 10 ){
+        sscanf(argv[1], "%lf",&year );
+        sscanf(argv[2], "%lf",&month );
+        sscanf(argv[3], "%lf",&day );
+        sscanf(argv[4], "%lf",&hour );
+        sscanf(argv[5], "%lf",&minute );
+        sscanf(argv[6], "%lf",&second );
+        sscanf(argv[7], "%lf",&timezone );
+        sscanf(argv[8], "%lf",&latitude);
+        sscanf(argv[9], "%lf",&longitude);
+    }
+    else{
+        printf("error, badly formatted inputs");
+        return 0;
+    }
+    spa.year          = year;
+    spa.month         = month;
+    spa.day           = day;
+    spa.hour          = hour;
+    spa.minute        = minute;
+    spa.second        = second;
+    spa.timezone      = timezone;
     spa.delta_ut1     = 0;
-    spa.delta_t       = 67;
-    spa.longitude     = -105.1786;
-    spa.latitude      = 39.742476;
-    spa.elevation     = 1830.14;
-    spa.pressure      = 820;
-    spa.temperature   = 11;
-    spa.slope         = 30;
-    spa.azm_rotation  = -10;
+    spa.delta_t       = 0;
+    spa.longitude     = longitude;
+    spa.latitude      = latitude;
+    spa.elevation     = 0;
+    spa.pressure      = 0;
+    spa.temperature   = 0;
+    spa.slope         = 0;
+    spa.azm_rotation  = 0;
     spa.atmos_refract = 0.5667;
     spa.function      = SPA_ALL;
     
@@ -129,18 +148,10 @@ int main (int argc, char *argv[])
     if (result == 0)  //check for SPA errors
     {
         //display the results inside the SPA structure
-
-        // printf("Julian Day:    %.6f\n",spa.jd);
-        // printf("L:             %.6e degrees\n",spa.l);
-        // printf("B:             %.6e degrees\n",spa.b);
-        // printf("R:             %.6f AU\n",spa.r);
-        // printf("H:             %.6f degrees\n",spa.h);
-        // printf("Delta Psi:     %.6e degrees\n",spa.del_psi);
-        // printf("Delta Epsilon: %.6e degrees\n",spa.del_epsilon);
-        // printf("Epsilon:       %.6f degrees\n",spa.epsilon);
+        int output = solar_angle(&spa);
         // printf("Zenith:        %.6f degrees\n",spa.zenith);
+        // printf("Solar Elevation:        %.6f degrees\n",90-spa.zenith);
         // printf("Azimuth:       %.6f degrees\n",spa.azimuth);
-        // printf("Incidence:     %.6f degrees\n",spa.incidence);
 
         // min = 60.0*(spa.sunrise - (int)(spa.sunrise));
         // sec = 60.0*(min - (int)min);
@@ -149,7 +160,8 @@ int main (int argc, char *argv[])
         // min = 60.0*(spa.sunset - (int)(spa.sunset));
         // sec = 60.0*(min - (int)min);
         // printf("Sunset:        %02d:%02d:%02d Local Time\n", (int)(spa.sunset), (int)min, (int)sec);
-        output_spa(spa);
+
+        return output;
     } else printf("SPA Error Code: %d\n", result);
 
     return 0;

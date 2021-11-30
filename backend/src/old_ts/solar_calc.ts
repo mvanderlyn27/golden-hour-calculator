@@ -16,7 +16,7 @@ const l_subcount = [4, 34, 20, 7, 3, 1];
 const b_subcount = [5, 2];
 const r_subcount = [40, 10, 6, 2, 1];
 
-const L_TERMS =
+const L_TERMS:Array<Array<Array<number>>> =
 [
     [
         [175347046.0,0,0],
