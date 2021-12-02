@@ -66,6 +66,14 @@ typedef struct
     double lng;
 } loc;
 
+struct time_output
+{
+    int hour;
+    int minute;
+    int second;
+    double deg;
+};
+
 typedef struct
 {
     //----------------------INPUT VALUES------------------------

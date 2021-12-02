@@ -472,6 +472,7 @@ double earth_values(double term_sum[], int count, double jme)
 
     sum /= 1.0e8;
 
+
     return sum;
 }
 
@@ -640,7 +641,7 @@ double geocentric_declination(double beta, double epsilon, double lamda)
     return rad2deg(asin(sin(beta_rad)*cos(epsilon_rad) +
                         cos(beta_rad)*sin(epsilon_rad)*sin(deg2rad(lamda))));
 }
-
+//convert all these to be in terms of just jd
 void calculate_geocentric_sun_right_ascension_and_declination(spa_data *spa)
 {
     double x[TERM_X_COUNT];
@@ -667,9 +668,11 @@ void calculate_geocentric_sun_right_ascension_and_declination(spa_data *spa)
     nutation_longitude_and_obliquity(spa->jce, x, &(spa->del_psi), &(spa->del_epsilon));
 
     spa->epsilon0 = ecliptic_mean_obliquity(spa->jme);
+    //both are in terms of jce, and jme 
     spa->epsilon  = ecliptic_true_obliquity(spa->del_epsilon, spa->epsilon0);
-
+    //r is in terms of jme
     spa->del_tau   = aberration_correction(spa->r);
+    //in terms of l which is interms of jme 
     spa->lamda     = apparent_sun_longitude(spa->theta, spa->del_psi, spa->del_tau);
     spa->nu0       = greenwich_mean_sidereal_time (spa->jd, spa->jc);
     spa->nu        = greenwich_sidereal_time (spa->nu0, spa->del_psi, spa->epsilon);
@@ -724,6 +727,8 @@ double topocentric_elevation_angle(double latitude, double delta_prime, double h
 
     return rad2deg(asin(sin(lat_rad)*sin(delta_prime_rad) +
                         cos(lat_rad)*cos(delta_prime_rad) * cos(deg2rad(h_prime))));
+
+
 }
 spa_calculate_time_from_angle(spa_data *spa){
     int result;

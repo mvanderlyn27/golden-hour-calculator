@@ -24,8 +24,9 @@
 // This sample program shows how to use    //
 //    the SPA.C code.                      //
 /////////////////////////////////////////////
-
+#include <math.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "spa.h"  //include the SPA header file
 void output_spa(spa_data spa)
 {
@@ -97,31 +98,11 @@ void output_spa(spa_data spa)
 
 
 int solar_angle(spa_data *spa){
-
+    printf("lol");
 }
-int main (int argc, char *argv[])
-{
+double get_angle( double year, double month, double day, double hour, double minute, double second, double timezone, double longitude, double latitude){
+    
     spa_data spa;  //declare the SPA structure
-    int result;
-    float min, sec;
-
-    //enter required input values into SPA structure
-    double year, month, day, hour, minute, second, timezone, longitude, latitude;
-    if(argc == 10 ){
-        sscanf(argv[1], "%lf",&year );
-        sscanf(argv[2], "%lf",&month );
-        sscanf(argv[3], "%lf",&day );
-        sscanf(argv[4], "%lf",&hour );
-        sscanf(argv[5], "%lf",&minute );
-        sscanf(argv[6], "%lf",&second );
-        sscanf(argv[7], "%lf",&timezone );
-        sscanf(argv[8], "%lf",&latitude);
-        sscanf(argv[9], "%lf",&longitude);
-    }
-    else{
-        printf("error, badly formatted inputs");
-        return 0;
-    }
     spa.year          = year;
     spa.month         = month;
     spa.day           = day;
@@ -141,31 +122,94 @@ int main (int argc, char *argv[])
     spa.atmos_refract = 0.5667;
     spa.function      = SPA_ALL;
     
-    //call the SPA calculate function and pass the SPA structure
 
-    result = spa_calculate(&spa);
+    int result = spa_calculate(&spa);
 
     if (result == 0)  //check for SPA errors
     {
-        //display the results inside the SPA structure
-        int output = solar_angle(&spa);
-        // printf("Zenith:        %.6f degrees\n",spa.zenith);
-        // printf("Solar Elevation:        %.6f degrees\n",90-spa.zenith);
-        // printf("Azimuth:       %.6f degrees\n",spa.azimuth);
-
-        // min = 60.0*(spa.sunrise - (int)(spa.sunrise));
-        // sec = 60.0*(min - (int)min);
-        // printf("Sunrise:       %02d:%02d:%02d Local Time\n", (int)(spa.sunrise), (int)min, (int)sec);
-
-        // min = 60.0*(spa.sunset - (int)(spa.sunset));
-        // sec = 60.0*(min - (int)min);
-        // printf("Sunset:        %02d:%02d:%02d Local Time\n", (int)(spa.sunset), (int)min, (int)sec);
-
+        
+        double output = spa.e0;
+//        printf("angle: %f",output);
         return output;
-    } else printf("SPA Error Code: %d\n", result);
-
-    return 0;
+    } else { 
+        printf("SPA Error Code: %d\n", result);
+        return -1;
+    }
 }
+int main (int argc, char *argv[])
+{
+    int result;
+    float min, sec;
+
+    //enter required input values into SPA structure
+    double year, month, day, timezone, longitude, latitude, degree_1, degree_2;
+    if(argc == 8){ //9 ){
+        sscanf(argv[1], "%lf",&year );
+        sscanf(argv[2], "%lf",&month );
+        sscanf(argv[3], "%lf",&day );
+        sscanf(argv[4], "%lf",&timezone );
+        sscanf(argv[5], "%lf",&latitude);
+        sscanf(argv[6], "%lf",&longitude);
+        sscanf(argv[7], "%lf",&degree_1);
+       // sscanf(argv[8], "%lf",&degree_2);
+        struct time_output out_1[2]; 
+       // struct time_output out_2[2]; 
+        double min_diff_1 = 0.1;
+        //double min_diff_2 = 0.1;
+        bool first_angle_found_1= false;
+       // bool first_angle_found_2 = false;
+        int counter_1= 0;
+       // int counter_2 = 0;
+        for(int i = 0; i < 86400; i+=5){
+            int hours = i/3600;
+            int minutes = (i- (3600* hours))/60;  
+            int seconds = (i - (3600*hours) - (60* minutes));
+            double deg = get_angle(year, month, day, hours, minutes, seconds, timezone, longitude, latitude); 
+            //printf("cur_dif: %f\n", fabs(deg-degree));
+            //maybe work on this to stop before going negative, so you'll always be slightly before instead of after time
+            if(fabs(deg - degree_1)  < min_diff_1){
+                min_diff_1 = fabs(deg-degree_1);
+                printf("cur_dif: %f, min_dif: %f deg: %f, %d:%d:%d\n",fabs(deg-degree_1), min_diff_1, deg, hours, minutes, seconds);
+                if(!first_angle_found_1){
+                    first_angle_found_1 = true;
+                }
+            }
+            else if(first_angle_found_1 == true && fabs(deg-degree_1) > 2*min_diff_1){
+                //printf("skip ahead\n");
+                i+= 7*3600;
+                first_angle_found_1 = false;
+                min_diff_1 = 0.1;
+                struct time_output time = {hours, minutes, seconds, deg};
+                out_1[counter_1] = time;
+                counter_1+=1;
+            }
+            // if(fabs(deg - degree_2)  < min_diff_2){
+            //     min_diff_2 = fabs(deg-degree_2);
+            //     //printf("cur_dif: %f, min_dif: %f deg: %f, %d:%d:%d\n",fabs(deg-degree), min_diff, deg, hours, minutes, seconds);
+            //     if(!first_angle_found_2){
+            //         first_angle_found_2 = true;
+            //     }
+            // }
+            // else if(first_angle_found_2 == true && fabs(deg-degree_2) > 2*min_diff_2){
+            //     //printf("skip ahead\n");
+            //     i+= 7*3600;
+            //     first_angle_found_2 = false;
+            //     min_diff_2 = 0.1;
+            //     struct time_output time = {hours, minutes, seconds};
+            //     out_2[counter_2] = time;
+            //     counter_2+=1;
+            // }
+        }
+        printf("angle 1 \nfirst time: %02d:%02d:%02d degree: %f  second time: %02d:%02d:%02d degree:%f\n",out_1[0].hour, out_1[0].minute, out_1[0].second, out_1[0].deg, out_1[1].hour, out_1[1].minute, out_1[1].second, out_1[1].deg);
+        //printf("angle 2 \nfirst time: %02d:%02d:%02d second time: %02d:%02d:%02d\n",out_2[0].hour, out_2[0].minute, out_2[0].second, out_2[1].hour, out_2[1].minute, out_2[1].second);
+        return 1;
+    }
+    else{
+        printf("error, badly formatted inputs");
+        return 0;
+    }
+}
+
 
 /////////////////////////////////////////////
 // The output of this program should be:
