@@ -169,7 +169,7 @@ int main (int argc, char *argv[])
             //maybe work on this to stop before going negative, so you'll always be slightly before instead of after time
             if(fabs(deg - degree_1)  < min_diff_1){
                 min_diff_1 = fabs(deg-degree_1);
-                printf("cur_dif: %f, min_dif: %f deg: %f, %d:%d:%d\n",fabs(deg-degree_1), min_diff_1, deg, hours, minutes, seconds);
+                //printf("cur_dif: %f, min_dif: %f deg: %f, %d:%d:%d\n",fabs(deg-degree_1), min_diff_1, deg, hours, minutes, seconds);
                 if(!first_angle_found_1){
                     first_angle_found_1 = true;
                 }
