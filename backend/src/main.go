@@ -21,6 +21,7 @@ type SolarCalcOutput struct {
 	StartTimeNight   time.Time `json:"start_time_night"`
 	EndTimeNight     time.Time `json:"end_time_night"`
 }
+type SolarCalcOut = C.struct_solar_calc_output
 
 func hello(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, "hello world")
@@ -44,7 +45,8 @@ func getGoldenHourTime(c *gin.Context) {
 		latitude:  Input.Lat,
 		longitude: Input.Long,
 	}
-	calc_out := C.find_golden_hour_time(in)
+	//need to figure out why we can't call the c function
+	var calc_out SolarCalcOut = C.find_golden_hour_time(in)
 	start_morning_string := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", calc_out.start_time_morning_h, calc_out.start_time_morning_m, calc_out.start_time_morning_s)
 	start_morning, err := time.Parse("2000-01-01 12:12:12", start_morning_string)
 	if err != nil {

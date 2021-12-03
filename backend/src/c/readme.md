@@ -1,1 +1,0 @@
-future could just add new FUNCTION to the func options for calculating time based on angle wanted
