@@ -2163,3 +2163,5 @@ backend/node_modules/suncalc/README.md
 backend/node_modules/suncalc/suncalc.js
 backend/node_modules/suncalc/test.js
 backend/node_modules/suncalc/yarn.lock
+backend/.vscode/c_cpp_properties.json
+backend/.vscode/tasks.json
