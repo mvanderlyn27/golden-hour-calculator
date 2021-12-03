@@ -1,19 +1,24 @@
 package main
 
+/*
+#include "spa.h"
+*/
+import "C"
 import (
-	"C"
 	"net/http"
 	"time"
 
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
-import "fmt"
 
+//work on removing timezone, default to 0, and just pass in time converted to UTC to backend
 type SolarCalcInput struct {
-	Date     time.Time `json:"date"`
-	Timezone int16     `json:'"timezone"`
-	Lat      float32   `json:"lat"`
-	Long     float32   `json:"long"`
+	Date     string  `json:"date"`
+	Timezone int16   `json:'"timezone"`
+	Lat      float64 `json:"lat"`
+	Long     float64 `json:"long"`
 }
 type SolarCalcOutput struct {
 	StartTimeMorning time.Time `json:"start_time_morning"`
@@ -34,36 +39,45 @@ func getGoldenHourTime(c *gin.Context) {
 		fmt.Print("Error parsing input")
 		return
 	}
-	year := Input.Date.Year()
-	month := Input.Date.Month()
-	day := Input.Date.Day()
+	date, err := time.Parse("2006-06-01", Input.Date)
+	if err != nil {
+		fmt.Print("Error parsing date")
+		return
+	}
+	year := date.Year()
+	month := date.Month()
+	day := date.Day()
 	in := C.struct_solar_calc_input{
-		year:      year,
-		month:     month,
-		day:       day,
-		timezone:  Input.Timezone,
-		latitude:  Input.Lat,
-		longitude: Input.Long,
+		year:      C.int(year),
+		month:     C.int(month),
+		day:       C.int(day),
+		timezone:  C.int(Input.Timezone),
+		latitude:  C.double(Input.Lat),
+		longitude: C.double(Input.Long),
 	}
 	//need to figure out why we can't call the c function
 	var calc_out SolarCalcOut = C.find_golden_hour_time(in)
-	start_morning_string := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", calc_out.start_time_morning_h, calc_out.start_time_morning_m, calc_out.start_time_morning_s)
-	start_morning, err := time.Parse("2000-01-01 12:12:12", start_morning_string)
+	fmt.Printf("%d:%d:%d\n", calc_out.start_time_morning_h, calc_out.start_time_morning_m, calc_out.start_time_morning_m)
+	fmt.Printf("%d:%d:%d\n", calc_out.end_time_morning_h, calc_out.end_time_morning_m, calc_out.end_time_morning_m)
+	fmt.Printf("%d:%d:%d\n", calc_out.start_time_night_h, calc_out.start_time_night_m, calc_out.start_time_night_m)
+	fmt.Printf("%d:%d:%d\n", calc_out.end_time_night_h, calc_out.end_time_night_m, calc_out.end_time_night_m)
+	start_morning_string := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02d", year, month, day, calc_out.start_time_morning_h, calc_out.start_time_morning_m, calc_out.start_time_morning_s)
+	start_morning, err := time.Parse("2006-01-02T15:04:05", start_morning_string)
 	if err != nil {
 		fmt.Printf("got err, %+v\n", err)
 	}
-	end_morning_string := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", calc_out.end_time_morning_h, calc_out.end_time_morning_m, calc_out.end_time_morning_s)
-	end_morning, err := time.Parse("2000-01-01 12:12:12", end_morning_string)
+	end_morning_string := fmt.Sprintf("%04d-%02d-%02dT%02d:%02d:%02d", year, month, day, calc_out.end_time_morning_h, calc_out.end_time_morning_m, calc_out.end_time_morning_s)
+	end_morning, err := time.Parse("2006-01-02T15:04:05", end_morning_string)
 	if err != nil {
 		fmt.Printf("got err, %+v\n", err)
 	}
-	start_night_string := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", calc_out.start_time_night_h, calc_out.start_time_night_m, calc_out.start_time_night_s)
-	start_night, err := time.Parse("2000-01-01 12:12:12", start_night_string)
+	start_night_string := fmt.Sprintf("%04d-%02d-%02dT%02d:%02d:%02d", year, month, day, calc_out.start_time_night_h, calc_out.start_time_night_m, calc_out.start_time_night_s)
+	start_night, err := time.Parse("2006-01-02T15:04:05", start_night_string)
 	if err != nil {
 		fmt.Printf("got err, %+v\n", err)
 	}
-	end_night_string := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", calc_out.end_time_night_h, calc_out.end_time_night_m, calc_out.end_time_night_s)
-	end_night, err := time.Parse("2000-01-01 12:12:12", end_night_string)
+	end_night_string := fmt.Sprintf("%04d-%02d-%02dT%02d:%02d:%02d", year, month, day, calc_out.end_time_night_h, calc_out.end_time_night_m, calc_out.end_time_night_s)
+	end_night, err := time.Parse("2006-01-02T15:04:05", end_night_string)
 	if err != nil {
 		fmt.Printf("got err, %+v\n", err)
 	}

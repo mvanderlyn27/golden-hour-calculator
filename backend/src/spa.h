@@ -248,5 +248,8 @@ double topocentric_azimuth_angle(double azimuth_astro);
 
 //Calculate SPA output values (in structure) based on input values passed in structure
 int spa_calculate(spa_data *spa);
+struct solar_calc_output find_golden_hour_time(struct solar_calc_input in);
+struct time_output *find_time(struct time_input input);
+double get_angle(double year, double month, double day, double hour, double minute, double second, double timezone, double longitude, double latitude);
 
 #endif

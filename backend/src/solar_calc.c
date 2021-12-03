@@ -106,6 +106,20 @@ struct time_output *find_time(struct time_input input){
     memcpy(out, out_ar, sizeof *out * 2);
     return out;
 }
+int to_seconds(struct time_output in){
+    return in.hour *360 + in.hour * 6 + in.second;
+}
+void sort_angles(struct time_output *in_1, struct time_output *in_2){
+    printf("time2 t1: %d t2: %d\n",to_seconds(in_1[0]), to_seconds(in_2[0]));
+    for(int i = 0; i < 2; i ++) {
+        printf("t1: %d t2: %d\n",to_seconds(in_1[i]), to_seconds(in_2[i]));
+        if(to_seconds(in_1[i]) > to_seconds(in_2[i])){
+            struct time_output temp = in_1[i];
+            in_1[i] = in_2[i];
+            in_2[i] = temp;
+        }
+    }
+}
 
 struct solar_calc_output find_golden_hour_time (struct solar_calc_input in)
 {
@@ -118,6 +132,8 @@ struct solar_calc_output find_golden_hour_time (struct solar_calc_input in)
         struct time_input in_2= {GOLDEN_HOUR_END, in.year, in.month, in.day, in.timezone, in.longitude, in.latitude};
         struct time_output *out_1 = find_time(in_1);
         struct time_output *out_2 = find_time(in_2);
+        printf("time1: %d:%d:%d\n",out_1[0].hour, out_1[0].minute, out_1[0].second);
+        sort_angles(out_1, out_2);
         struct solar_calc_output out = {out_1[0].hour, out_1[0].minute, out_1[0].second, out_2[0].hour, out_2[0].minute, out_2[0].second, out_1[1].hour, out_1[1].minute, out_1[1].second, out_2[1].hour, out_2[1].minute, out_2[1].second};
         free(out_1);
         free(out_2);
@@ -125,34 +141,38 @@ struct solar_calc_output find_golden_hour_time (struct solar_calc_input in)
     }
 int main (int argc, char *argv[])
 {
-    int result;
-    float min, sec;
-    time_t now;
-    time(&now);
-    //enter required input values into SPA structure
-    double year, month, day, timezone, longitude, latitude, degree1, degree2;
-    if(argc == 9 ){
-        sscanf(argv[1], "%lf",&year );
-        sscanf(argv[2], "%lf",&month );
-        sscanf(argv[3], "%lf",&day );
-        sscanf(argv[4], "%lf",&timezone );
-        sscanf(argv[5], "%lf",&latitude);
-        sscanf(argv[6], "%lf",&longitude);
-        sscanf(argv[7], "%lf",&degree1);
-        sscanf(argv[8], "%lf",&degree2);
-        struct time_input in_1= {degree1, year, month, day, timezone, longitude, latitude};
-        struct time_input in_2= {degree2, year, month, day, timezone, longitude, latitude};
-        struct time_output *out_1 = find_time(in_1);
-        struct time_output *out_2 = find_time(in_2);
-     
-        printf("angle 1 \nfirst time: %02d:%02d:%02d degree: %f  second time: %02d:%02d:%02d degree:%f\n",out_1[0].hour, out_1[0].minute, out_1[0].second, out_1[0].deg, out_1[1].hour, out_1[1].minute, out_1[1].second, out_1[1].deg);
-        printf("angle 2 \nfirst time: %02d:%02d:%02d degree: %f  second time: %02d:%02d:%02d degree:%f\n",out_2[0].hour, out_2[0].minute, out_2[0].second, out_2[0].deg, out_2[1].hour, out_2[1].minute, out_2[1].second, out_2[1].deg);
-        free(out_1);
-        free(out_2);
-        return 1;
-    }
-    else{
-        printf("error, badly formatted inputs");
-        return 0;
-    }
+    struct solar_calc_input in = {2021, 12, 2, -5, 39, -77};
+    struct solar_calc_output out = find_golden_hour_time(in);
+    printf("out: %d:%d:%d", out.start_time_morning_h, out.start_time_morning_m, out.start_time_morning_s);
 }
+    // int result;
+    // float min, sec;
+    // time_t now;
+    // time(&now);
+    // //enter required input values into SPA structure
+    // double year, month, day, timezone, longitude, latitude, degree1, degree2;
+    // if(argc == 9 ){
+    //     sscanf(argv[1], "%lf",&year );
+    //     sscanf(argv[2], "%lf",&month );
+    //     sscanf(argv[3], "%lf",&day );
+    //     sscanf(argv[4], "%lf",&timezone );
+    //     sscanf(argv[5], "%lf",&latitude);
+    //     sscanf(argv[6], "%lf",&longitude);
+    //     sscanf(argv[7], "%lf",&degree1);
+    //     sscanf(argv[8], "%lf",&degree2);
+    //     struct time_input in_1= {degree1, year, month, day, timezone, longitude, latitude};
+    //     struct time_input in_2= {degree2, year, month, day, timezone, longitude, latitude};
+    //     struct time_output *out_1 = find_time(in_1);
+    //     struct time_output *out_2 = find_time(in_2);
+     
+    //     printf("angle 1 \nfirst time: %02d:%02d:%02d degree: %f  second time: %02d:%02d:%02d degree:%f\n",out_1[0].hour, out_1[0].minute, out_1[0].second, out_1[0].deg, out_1[1].hour, out_1[1].minute, out_1[1].second, out_1[1].deg);
+    //     printf("angle 2 \nfirst time: %02d:%02d:%02d degree: %f  second time: %02d:%02d:%02d degree:%f\n",out_2[0].hour, out_2[0].minute, out_2[0].second, out_2[0].deg, out_2[1].hour, out_2[1].minute, out_2[1].second, out_2[1].deg);
+    //     free(out_1);
+    //     free(out_2);
+    //     return 1;
+    // }
+    // else{
+    //     printf("error, badly formatted inputs");
+    //     return 0;
+    // }
+// }
