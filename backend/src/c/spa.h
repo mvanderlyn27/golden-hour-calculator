@@ -65,7 +65,40 @@ typedef struct
     double lat;
     double lng;
 } loc;
-
+struct solar_calc_input 
+{
+    int year;
+    int month;
+    int day;
+    int timezone;
+    double latitude;
+    double longitude;
+};
+struct solar_calc_output
+{
+    int start_time_morning_h;
+    int start_time_morning_m;
+    int start_time_morning_s;
+    int end_time_morning_h;
+    int end_time_morning_m;
+    int end_time_morning_s;
+    int start_time_night_h;
+    int start_time_night_m;
+    int start_time_night_s;
+    int end_time_night_h;
+    int end_time_night_m;
+    int end_time_night_s;
+};
+struct time_input 
+{
+    double degree;
+    int year;
+    int month;
+    int day;
+    int timezone;
+    double latitude;
+    double longitude;
+};
 struct time_output
 {
     int hour;
