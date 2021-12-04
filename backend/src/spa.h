@@ -70,7 +70,6 @@ struct solar_calc_input
     int year;
     int month;
     int day;
-    int timezone;
     double latitude;
     double longitude;
 };
@@ -95,7 +94,6 @@ struct time_input
     int year;
     int month;
     int day;
-    int timezone;
     double latitude;
     double longitude;
 };
@@ -250,6 +248,6 @@ double topocentric_azimuth_angle(double azimuth_astro);
 int spa_calculate(spa_data *spa);
 struct solar_calc_output find_golden_hour_time(struct solar_calc_input in);
 struct time_output *find_time(struct time_input input);
-double get_angle(double year, double month, double day, double hour, double minute, double second, double timezone, double longitude, double latitude);
+double get_angle(double year, double month, double day, double hour, double minute, double second, double longitude, double latitude);
 
 #endif
