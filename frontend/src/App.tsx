@@ -1,28 +1,34 @@
 import * as React from 'react';
 import { DefaultPalette, Slider, Stack, IStackStyles, IStackTokens, IStackItemStyles } from '@fluentui/react';
 import './App.css';
-import { DefaultButton } from '@fluentui/react';
+import {  getTheme, TextField, ITextFieldStyles} from '@fluentui/react';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
-import { Icon } from '@fluentui/react/lib/Icon';
 import LeftBar from './components/LeftBar';
 import Map from './components/MapHolder';
+import MapHolder from './components/MapHolder';
 initializeIcons();
-
+const theme = getTheme();
 const leftBar: IStackItemStyles = {
   root: {
+    alignItems: 'start',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    width: 500
+  },
+};
+const mapSearch: IStackItemStyles = {
+  root: {
     alignItems: 'center',
-    display: 'flex',
     justifyContent: 'center',
     overflow: 'hidden',
   },
 };
-const map: IStackItemStyles = {
+const mapHolder: IStackItemStyles = {
   root: {
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
     overflow: 'hidden',
-    width: 700,
   },
 };
 
@@ -34,22 +40,68 @@ function App() {
   const stackStyles: IStackStyles = {
     root: {
       overflow: 'hidden',
-      width: '100%',
+      display: 'flex',
+      height: `100vh`
     },
   };
+  const mapTextStyles: ITextFieldStyles = {
+    root: {
+      height: `5vh`
+    },
+    field: {
+      height: `3vh`
+    },
+    description: {},
+    errorMessage  : {},
+    fieldGroup : {height: `3vh`},
+    icon: {},
+    prefix: {},
+    revealButton: {},
+    revealIcon: {},
+    revealSpan: {},
+    subComponentStyles: {label: {}},
+    suffix: {},
+    wrapper: {},
+
+  }
+ let userLat = null; 
+ let userLong = null; 
+  React.useEffect( ()=>{
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position:any)=>{
+        console.log(position.coords.latitude);
+        console.log(position.coords.longitude);
+        if(position?.coords?.latitude !=null && position?.coords?.longitude != null){
+        setLat(position.coords.latitude);
+        setLong(position.coords.longitude);
+        }else{
+          console.log('error loading lat/lng');
+        }
+      });
+    } else {
+      console.log('user declined geolocation');
+    }
+  }, []);
+  
+  const [lat, setLat] = React.useState<number|null>(39);
+  const [long, setLong] = React.useState<number|null>(-77);
   return (
     <div className="App">
-      <Stack>
-     
-      <Stack horizontal styles={stackStyles}>
-        <Stack.Item grow styles={leftBar}>
-          <LeftBar/>
+      <Stack horizontal grow styles={stackStyles}>
+        <Stack.Item styles={leftBar}>
+          <LeftBar lat={lat} long={long} setLat={setLat} setLong={setLong}/>
         </Stack.Item>
-        <Stack.Item grow disableShrink styles={map}>
-          <Map/>
+        <Stack.Item grow styles={mapHolder}>
+          <Stack grow styles={stackStyles}>
+        <Stack.Item  hidden styles={mapSearch}>
+            <TextField styles ={mapTextStyles} style={{ boxShadow: theme.effects.elevation64 }} placeholder="Search Location"/> 
+            </Stack.Item>
+        <Stack.Item grow styles={mapHolder}>
+            <Map lat={lat} long={long} setLat={setLat} setLong={setLong}/>
+            </Stack.Item>
+          </Stack>
         </Stack.Item>
       </Stack>
-    </Stack>
     </div>
   );
 }

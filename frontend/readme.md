@@ -50,9 +50,8 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 # Frontend
 
 # mvp
-- map to select location
-- date selector
-- display of output
+- get all components we need
+- setup logic to select inputs, send request to backend, display results
 - clean ui
 - accessible from internet
 

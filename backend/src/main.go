@@ -10,6 +10,8 @@ import (
 
 	"fmt"
 
+	"github.com/gin-contrib/cors"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -85,11 +87,12 @@ func getGoldenHourTime(c *gin.Context) {
 	}
 	elapsed := time.Since(start)
 	fmt.Printf("elapsed: %s\n", elapsed)
-	c.IndentedJSON(http.StatusOK, out)
+	c.JSON(http.StatusOK, out)
 }
 func main() {
 	router := gin.Default()
 	router.GET("/", hello)
-	router.GET("/golden-hour-times", getGoldenHourTime)
+	router.PUT("/golden-hour-times", getGoldenHourTime)
+	router.Use(cors.Default())
 	router.Run("localhost:8080")
 }
