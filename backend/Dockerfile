@@ -1,12 +1,11 @@
 FROM golang:1.16-alpine
-
 WORKDIR /app
 
-COPY go.mod ./
-COPY go.sum ./
+COPY src/go.mod ./
+COPY src/go.sum ./
 RUN go mod download
 
-COPY *.go ./
-
+COPY src/*.go ./
+EXPOSE 8080
 RUN go build -o /docker-backend
 CMD ["/docker-backend"]

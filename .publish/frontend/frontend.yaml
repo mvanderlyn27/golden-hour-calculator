@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: photo-spot
+  name: photo-spot-frontend
+  labels:
+    app: photo-spot-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photo-spot-frontend
+  template:
+    metadata:
+      labels:
+        app: photo-spot-frontend
+        app.kubernetes.io/name: photo-spot-frontend
+        app.kubernetes.io/instance: photo-spot-frontend
+    spec:
+      containers:
+      - name: photo-spot-frontend
+        image: mvanderlyn27/photo-spot-frontend
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "250m"
+          limits:
+            memory: "1000Mi"
+            cpu: "500m"
+        env:
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: REACT_APP_STAPLE_DEV_HOST
+            value: ""
+        ports:
+        - name: ps-front
+          containerPort: 3000
+---
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: photo-spot
+  name: photo-spot-front-service
+  labels:
+    app: photo-spot-frontend
+    app.kubernetes.io/name: photo-spot-frontend
+    app.kubernetes.io/instance: photo-spot-frontend
+spec:
+  selector:
+    app: photo-spot-frontend
+    app.kubernetes.io/name: photo-spot-frontend
+    app.kubernetes.io/instance: photo-spot-frontend
+  ports:
+  - name: ps-front
+    port: 3000
+    targetPort: ps-front

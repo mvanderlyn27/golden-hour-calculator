@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: photo-spot
+  name: photo-spot-app-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/acme-challenge-type: http01
+    nginx.ingress.kubernetes.io/rewrite-target: /$1 # this is important
+spec:
+  tls:
+  - hosts:
+    - vanderlyn.space 
+    secretName: photo-spot-app-tls
+  rules:
+  - host: vanderlyn.space 
+    http:
+      paths:
+      - backend:
+          serviceName: photo-spot-service
+          servicePort: ss-port # 8080
+        path: /(rest/api/1.*)
+  - host: vanderlyn.space 
+    http:
+      paths:
+      - backend:
+          serviceName: photo-spot-front-service
+          servicePort: sfs-port # 3000 
+        path: /(.*)

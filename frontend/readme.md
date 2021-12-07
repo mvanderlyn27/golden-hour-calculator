@@ -54,6 +54,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - setup logic to select inputs, send request to backend, display results
 - clean ui
 - accessible from internet
+- switch to react-leaflet
 
 # future ideas
 - 3d rendered eart/sun model to show the sun in the sky in relation to the earth 

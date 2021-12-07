@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: photo-spot
+  name: photo-spot-backend
+  labels:
+    app: photo-spot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: photo-spot
+  template:
+    metadata:
+      labels:
+        app: photo-spot
+        app.kubernetes.io/name: photo-spot
+        app.kubernetes.io/instance: photo-spot
+    spec:
+      containers:
+      - name: photo-spot
+        image: mvanderlyn27/photo-spot-backend
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "250m"
+          limits:
+            memory: "1000Mi"
+            cpu: "500m"
+        env:
+        #   - name: POD_NAMESPACE
+        #     valueFrom:
+        #       fieldRef:
+        #         fieldPath: metadata.namespace
+        #   - name: DB_PASSWORD
+        #     valueFrom:
+        #       secretKeyRef:
+        #         name: photo-spot-db-password
+        #         key: POSTGRES_PASSWORD
+        # args:
+        #   - --photo-spot-db-hostname=photo-spot-db-service.cronohub.svc.cluster.local:5432
+        #   - --photo-spot-db-username=photo-spot
+        #   - --photo-spot-db-database=photo-spot
+        #   - --photo-spot-db-password=$(DB_PASSWORD)
+        ports:
+        - name: photo-spot-port
+          containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: photo-spot
+  name: photo-spot-service
+  labels:
+    app: photo-spot
+    app.kubernetes.io/name: photo-spot
+    app.kubernetes.io/instance: photo-spot
+spec:
+  selector:
+    app: photo-spot
+    app.kubernetes.io/name: photo-spot
+    app.kubernetes.io/instance: photo-spot
+  ports:
+  - name: service-port
+    port: 8080 
+    targetPort: photo-spot-port

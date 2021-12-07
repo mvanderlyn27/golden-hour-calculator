@@ -1,2 +1,0 @@
-#manifest to deploy backend/frontend to k8s cluster
-#need to figure out networking between frontend/backned/outside internet

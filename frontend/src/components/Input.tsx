@@ -22,10 +22,10 @@ const validateInput = (input: SolarInput) => {
     if(input === null || input.date === null || input.lat === null || input.long === null){
         return false;
     }
-    if(input.lat < -180 || input.lat > 180){
+    if(input.lat < -90 || input.lat > 90){
         return false;
     }
-    if(input.long <-90 || input.long > 90){
+    if(input.long <-180 || input.long > 180){
         return false
     }
     //maybe some date calc?
@@ -45,7 +45,7 @@ const getGoldenHour = async () => {
             //send request to backend
             //update frontend
             try{
-                let res:SolarOutput = (await axios.put('http://localhost:8080/golden-hour-times',currentInput)).data;
+                let res:SolarOutput = (await axios.put('http://localhost:8080/rest/api/1/golden-hour-times',currentInput)).data;
                 props.setSolarOutput(res);
             }
             catch(e){
