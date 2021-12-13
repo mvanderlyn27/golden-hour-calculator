@@ -3,13 +3,9 @@ kind: Ingress
 metadata:
   name: ingress-frontend
   namespace: photo-spot
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
 spec:
-  ingressClassName: nginx
-  defaultBackend:
-    service:
-      name: frontend
-      port:
-        number: 80
   rules:
   - host: photo-spot.vanderlyn.space
     http:
@@ -28,19 +24,14 @@ metadata:
   name: ingress-backend
   namespace: photo-spot
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/rewrite-target: /
 spec:
-  ingressClassName: nginx
-  defaultBackend:
-    service:
-      name: frontend
-      port:
-        number: 80
   rules:
   - host: vanderlyn.space
     http:
       paths:
-      - path: /api
+      - path: /api/v1
         pathType: Prefix
         backend:
           service:
