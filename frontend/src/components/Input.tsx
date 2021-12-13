@@ -45,7 +45,7 @@ const getGoldenHour = async () => {
             //send request to backend
             //update frontend
             try{
-                let res:SolarOutput = (await axios.put('http://localhost:8080/rest/api/1/golden-hour-times',currentInput)).data;
+                let res:SolarOutput = (await axios.put('http://vanderlyn.space:32021/api/v1/golden-hour-times',currentInput)).data;
                 props.setSolarOutput(res);
             }
             catch(e){
@@ -64,10 +64,10 @@ const inputParent: IStackTokens = {childrenGap: 5};
         <div>
             <Stack tokens={inputParent}>
                 <Stack.Item styles = {inputItem}>
-                    <TextField label="Latitude" value={props.lat.toFixed(2)} onChange={(e,val)=>props.setLat(val!=undefined? parseFloat(val): null)}/>
+                    <TextField label="Latitude" value={props.lat.toFixed(2)} onChange={(e,val)=>props.setLat(val!==undefined? parseFloat(val): null)}/>
                 </Stack.Item>
                 <Stack.Item styles = {inputItem}>
-                    <TextField label="Longitude" value={props.long.toFixed(2)} onChange={(e,val)=>props.setLong(val!=undefined? parseFloat(val): null)}/>
+                    <TextField label="Longitude" value={props.long.toFixed(2)} onChange={(e,val)=>props.setLong(val!==undefined? parseFloat(val): null)}/>
                 </Stack.Item>
                 <Stack.Item styles = {inputItem}>
                     <DatePicker
@@ -75,7 +75,7 @@ const inputParent: IStackTokens = {childrenGap: 5};
                         placeholder="Select a date..."
                         ariaLabel="Select a date"
                         strings={defaultDatePickerStrings}
-                        onSelectDate={ (val) => updateDate(val!=undefined?val.getTime()/1000:null) }
+                        onSelectDate={ (val) => updateDate(val!==undefined && val!==null? val.getTime()/1000:null) }
                         label = "Date:"
                     />
                 </Stack.Item>

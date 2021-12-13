@@ -109,8 +109,8 @@ func getGoldenHourTimeV1(c *gin.Context) {
 func main() {
 	router := gin.Default()
 	router.GET("/", hello)
-	const api = "rest/api/1"
+	const api = "api/v1"
 	router.PUT(api+"/golden-hour-times", getGoldenHourTimeV1)
 	router.Use(cors.Default())
-	router.Run("localhost:8080")
+	router.Run("0.0.0.0:8080")
 }

@@ -1,0 +1,53 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-frontend
+  namespace: photo-spot
+spec:
+  ingressClassName: nginx
+  defaultBackend:
+    service:
+      name: frontend
+      port:
+        number: 80
+  rules:
+  - host: photo-spot.vanderlyn.space
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-backend
+  namespace: photo-spot
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  defaultBackend:
+    service:
+      name: frontend
+      port:
+        number: 80
+  rules:
+  - host: vanderlyn.space
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend 
+            port:
+              number: 80
+
+
+
+
