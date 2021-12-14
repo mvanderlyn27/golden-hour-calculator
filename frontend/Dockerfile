@@ -1,12 +1,17 @@
-FROM node:13.12.0-alpine
+FROM node:13.12.0-alpine AS builder
+RUN mkdir /app
 WORKDIR  /app
 ENV PATH /app/node_modules/.bin:$PATH
-
-COPY package.json ./
-COPY package-lock.json ./
-RUN apk add curl
-RUN npm install --silent
-RUN npm install react-scripts@3.4.1 -g --silent
-EXPOSE 3000
+ENV PATH /app/build/:$PATH
 COPY . ./
-CMD ["npm", "start"]
+RUN npm install --silent
+RUN npm run build-prod
+
+#nginx
+FROM nginx:1.15
+COPY --from=builder /app/build /usr/share/nginx/html
+RUN rm -rf /etc/nginx/conf.d
+COPY --from=builder /app/nginx/conf.d /etc/nginx/conf.d
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+

@@ -112,5 +112,5 @@ func main() {
 	const api = "api/v1"
 	router.PUT(api+"/golden-hour-times", getGoldenHourTimeV1)
 	router.Use(cors.Default())
-	router.Run("0.0.0.0:8080")
+	router.Run()
 }

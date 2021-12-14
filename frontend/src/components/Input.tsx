@@ -45,7 +45,7 @@ const getGoldenHour = async () => {
             //send request to backend
             //update frontend
             try{
-                let res:SolarOutput = (await axios.put('http://vanderlyn.space/api/v1/golden-hour-times',currentInput)).data;
+                let res:SolarOutput = (await axios.put('/api/v1/golden-hour-times',currentInput)).data;
                 props.setSolarOutput(res);
             }
             catch(e){
