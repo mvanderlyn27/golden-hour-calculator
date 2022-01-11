@@ -5,6 +5,7 @@ web app to calculate golden hour at any time, anywhere on the planet
 
 ## todo
 * add ability to serach locations 
+* update frontend to be responsive
 * add other maps servers
 * add backend
 * add ability to create an account
