@@ -16,6 +16,6 @@ web app to calculate golden hour at any time, anywhere on the planet
 * add ability to serach locations 
 * update frontend to be responsive
 * add other maps servers
-* add backend
+* add postgres db
 * add ability to create an account
 * add ability to upload/view photo spot locations
