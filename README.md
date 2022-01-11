@@ -1,5 +1,5 @@
 # golden-hour-calculator
-https://photo-spot.vanderyn.space
+https://photo-spot.vanderlyn.space
 ## purpose
 web app to calculate golden hour at any time, anywhere on the planet
 
