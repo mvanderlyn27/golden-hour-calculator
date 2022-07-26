@@ -49,12 +49,27 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 # Frontend
 
-# mvp
+# mvp (done)
 - get all components we need
 - setup logic to select inputs, send request to backend, display results
-- clean ui
+- usable ui
 - accessible from internet
-- switch to react-leaflet
+# 2.0
+- reactive frontend
+    - mobile view
+- location searching
+- cleaner UI
+- better map renderer
+- easier local dev
+    - add code to volume of docker image
+    - add variable that defaults to prod, for local running
+- User capabilities
+    - Splash page
+    - login
+    - upload your own locations
+    - view other top locations
+    - rate locations
+- 
 
 # future ideas
 - 3d rendered eart/sun model to show the sun in the sky in relation to the earth 

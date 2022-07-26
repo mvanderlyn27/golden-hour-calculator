@@ -8,10 +8,10 @@ RUN npm install --silent
 RUN npm run build-prod
 
 #nginx
-FROM nginx:1.15
+FROM nginx:1.19
 COPY --from=builder /app/build /usr/share/nginx/html
-RUN rm -rf /etc/nginx/conf.d
-COPY --from=builder /app/nginx/conf.d /etc/nginx/conf.d
+COPY --from=builder /app/nginx/templates /etc/nginx/templates
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+ENV API_HOST backend.photo-spot 
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
