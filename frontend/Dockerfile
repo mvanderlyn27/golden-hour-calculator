@@ -11,7 +11,7 @@ RUN npm run build-prod
 FROM nginx:1.19
 COPY --from=builder /app/build /usr/share/nginx/html
 COPY --from=builder /app/nginx/templates /etc/nginx/templates
+ENV API_HOST backend.photo-spot
 EXPOSE 80
-ENV API_HOST backend.photo-spot 
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
 
