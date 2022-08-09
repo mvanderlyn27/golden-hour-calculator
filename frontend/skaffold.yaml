@@ -1,0 +1,13 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+metadata:
+  name: frontend
+build:
+  artifacts:
+  - image: mvanderlyn27/photo-spot-frontend
+    docker:
+      dockerfile: Dockerfile
+deploy:
+  kubectl:
+    manifests:
+    - frontend.yaml

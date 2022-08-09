@@ -1,8 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: photo-spot-backend 
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend 
-  namespace: photo-spot
+  namespace: photo-spot-backend
 spec:
   selector:
     matchLabels:
@@ -28,7 +33,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend
-  namespace: photo-spot
+  namespace: photo-spot-backend
 spec:
   selector:
     app: photo-spot 

@@ -63,6 +63,9 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - easier local dev
     - add code to volume of docker image
     - add variable that defaults to prod, for local running
+    - look into terraform/skaffold for deploying dif env to the kube cluster
+    - local code changes should get pushed to dev, maybe can promote, or manually push to prod
+    - maybe setup k3 to run locally too? Not sure how it will differ for the prod vs non prod connecting to website xD 
 - User capabilities
     - Splash page
     - login
