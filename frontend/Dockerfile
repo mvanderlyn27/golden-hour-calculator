@@ -1,10 +1,11 @@
 FROM node:13.12.0-alpine AS builder
-RUN mkdir /app
-WORKDIR  /app
 ENV PATH /app/node_modules/.bin:$PATH
 ENV PATH /app/build/:$PATH
-COPY . ./
-RUN npm install --silent
+COPY /package.json /tmp/package.json 
+RUN cd /tmp && npm install
+RUN mkdir -p /app && cp -a /tmp/node_modules /app
+WORKDIR  /app
+COPY . /app
 #need to make it so based on the environment we build-prod, or not
 #have a npm run script which checks env vars
 #based on that run build-prod, or the dev run that rebuilds based on changes, and saves to /app/build
