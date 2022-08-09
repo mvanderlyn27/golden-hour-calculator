@@ -17,6 +17,7 @@ web app to calculate golden hour at any time, anywhere on the planet
 * run local backend
 * run local frontend 
   * add var for local running to direct to localhost for backend
+* need to setup nodemon type setup for tsc, and have docker image run in dev/prod mode
 * maybe setup docker compose to run both images
 
 ## todo mvp
