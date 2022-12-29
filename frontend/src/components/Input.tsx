@@ -2,6 +2,10 @@ import * as React from 'react'
 import { Stack, TextField, PrimaryButton, IStackStyles, IStackTokens, DatePicker, DayOfWeek,defaultDatePickerStrings} from "@fluentui/react";
 import {SolarInput, SolarOutput} from '../types/types'
 import axios from 'axios'
+const mbxClient = require('@mapbox/mapbox-sdk');
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const baseClient = mbxClient({ accessToken: 'pk.eyJ1IjoibXZhbmRlcmx5bjI3IiwiYSI6ImNsYzJ4a3Z0czByeXUzeGw5Y2pwa20zYnQifQ.xg9KR9YUbF5fpmpXHwyLpA' });
+const geoCodingService = mbxGeocoding(baseClient);
 const Input = (props:any) => {
 const inputItem: IStackStyles = {
   root: {
@@ -58,13 +62,23 @@ const getGoldenHour = async () => {
         }
     }
 }
-
+const handleLocation = (val: string | undefined) => {
+    geoCodingService.forwardGeocode({
+        query: val  
+      })
+        .send()
+        .then((response: { body: any; }) => {
+          // GeoJSON document with geocoding matches
+          const match = response.body;
+          console.log(match);
+        });
+}
 const inputParent: IStackTokens = {childrenGap: 5};
     return(
         <div>
             <Stack tokens={inputParent}>
                 <Stack.Item styles = {inputItem}>
-                    <TextField label="Location" value={props.location} onChange={(e,val)=>props.setLocation(val!==undefined? val: null)}/>
+                    <TextField label="Location" value={props.location} onChange={(e, val)=> handleLocation(val)}/>
                 </Stack.Item>
                 <Stack.Item styles = {inputItem}>
                     <TextField label="Latitude" value={props.lat.toFixed(2)} onChange={(e,val)=>props.setLat(val!==undefined? parseFloat(val): null)}/>

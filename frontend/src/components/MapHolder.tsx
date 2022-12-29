@@ -10,7 +10,7 @@ const MapHolder = (props:any) => {
   C20.1,15.8,20.2,15.8,20.2,15.7z`;
   const pinStyle = {
     cursor: 'pointer',
-    fill: '#d00',
+    fill: 'rgb(0, 120, 212)',
     stroke: 'none'
   };
     const updatePos = (lat:number, lng:number) => {
