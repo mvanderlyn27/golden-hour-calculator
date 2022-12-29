@@ -64,6 +64,9 @@ const inputParent: IStackTokens = {childrenGap: 5};
         <div>
             <Stack tokens={inputParent}>
                 <Stack.Item styles = {inputItem}>
+                    <TextField label="Location" value={props.location} onChange={(e,val)=>props.setLocation(val!==undefined? val: null)}/>
+                </Stack.Item>
+                <Stack.Item styles = {inputItem}>
                     <TextField label="Latitude" value={props.lat.toFixed(2)} onChange={(e,val)=>props.setLat(val!==undefined? parseFloat(val): null)}/>
                 </Stack.Item>
                 <Stack.Item styles = {inputItem}>

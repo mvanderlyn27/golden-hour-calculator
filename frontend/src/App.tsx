@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { DefaultPalette, Slider, Stack, IStackStyles, IStackTokens, IStackItemStyles } from '@fluentui/react';
+import 'mapbox-gl/dist/mapbox-gl.css'
 import './App.css';
 import {  getTheme, TextField, ITextFieldStyles} from '@fluentui/react';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
 import LeftBar from './components/LeftBar';
-import Map from './components/MapHolder';
 import MapHolder from './components/MapHolder';
+import MapProvider from 'react-map-gl';
 initializeIcons();
 const theme = getTheme();
 const leftBar: IStackItemStyles = {
@@ -87,21 +88,25 @@ function App() {
   const [long, setLong] = React.useState<number|null>(-77);
   return (
     <div className="App">
-      <Stack horizontal grow styles={stackStyles}>
-        <Stack.Item styles={leftBar}>
-          <LeftBar lat={lat} long={long} setLat={setLat} setLong={setLong}/>
-        </Stack.Item>
-        <Stack.Item grow styles={mapHolder}>
-          <Stack grow styles={stackStyles}>
-        <Stack.Item  hidden styles={mapSearch}>
-            <TextField styles ={mapTextStyles} style={{ boxShadow: theme.effects.elevation64 }} placeholder="Search Location"/> 
-            </Stack.Item>
-        <Stack.Item grow styles={mapHolder}>
-            <Map lat={lat} long={long} setLat={setLat} setLong={setLong}/>
-            </Stack.Item>
-          </Stack>
-        </Stack.Item>
-      </Stack>
+      {/* <MapProvider
+      mapboxAccessToken='pk.eyJ1IjoibXZhbmRlcmx5bjI3IiwiYSI6ImNsYzJ4a3Z0czByeXUzeGw5Y2pwa20zYnQifQ.xg9KR9YUbF5fpmpXHwyLpA'
+      > */}
+        <Stack horizontal grow styles={stackStyles}>
+          <Stack.Item styles={leftBar}>
+            <LeftBar lat={lat} long={long} setLat={setLat} setLong={setLong}/>
+          </Stack.Item>
+          <Stack.Item grow styles={mapHolder}>
+            <Stack grow styles={stackStyles}>
+          <Stack.Item  hidden styles={mapSearch}>
+              <TextField styles ={mapTextStyles} style={{ boxShadow: theme.effects.elevation64 }} placeholder="Search Location"/> 
+              </Stack.Item>
+          <Stack.Item grow styles={mapHolder}>
+              <MapHolder lat={lat} long={long} setLat={setLat} setLong={setLong}/>
+              </Stack.Item>
+            </Stack>
+          </Stack.Item>
+        </Stack>
+      {/* </MapProvider> */}
     </div>
   );
 }
