@@ -57,21 +57,24 @@ const getGoldenHour = async () => {
     }
 }
     const handleLocationSearch = (val: string | undefined) => {
-        geoCodingService.forwardGeocode({
-            query: val  
-        })
-            .send()
-            .then((response: { body: any; }) => {
-            // GeoJSON document with geocoding matches
-            const match = response.body.features;
-            console.log('match',match);
-            const match_dropdown_options = match.map((val:any) => {
-                    return {value:val.center ,label: val.place_name} 
-            });
-            console.log('match text',match_dropdown_options);
+        if(val !== location_val?.label){
+            updateLocation({value: [], label: val});
+            geoCodingService.forwardGeocode({
+                query: val  
+            })
+                .send()
+                .then((response: { body: any; }) => {
+                // GeoJSON document with geocoding matches
+                const match = response.body.features;
+                console.log('match',match);
+                const match_dropdown_options = match.map((val:any) => {
+                        return {value:val.center ,label: val.place_name} 
+                });
+                console.log('match text',match_dropdown_options);
 
-            updateLocationOptions(match_dropdown_options);
-            });
+                updateLocationOptions(match_dropdown_options);
+                });
+        }
     }
     const handleLocationSelect = (val: any) => {
         console.log(val);
