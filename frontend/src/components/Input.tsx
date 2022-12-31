@@ -1,21 +1,13 @@
 import * as React from 'react'
-import { Stack, TextField, PrimaryButton, IStackStyles, IStackTokens, DatePicker, DayOfWeek,defaultDatePickerStrings} from "@fluentui/react";
 import {SolarInput, SolarOutput} from '../types/types'
 import axios from 'axios'
+import { AutoComplete, Space, DatePicker, Button } from 'antd';
 const mbxClient = require('@mapbox/mapbox-sdk');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+
 const baseClient = mbxClient({ accessToken: 'pk.eyJ1IjoibXZhbmRlcmx5bjI3IiwiYSI6ImNsYzJ4a3Z0czByeXUzeGw5Y2pwa20zYnQifQ.xg9KR9YUbF5fpmpXHwyLpA' });
 const geoCodingService = mbxGeocoding(baseClient);
 const Input = (props:any) => {
-const inputItem: IStackStyles = {
-  root: {
-    alignItems: 'center',
-    display: 'flex',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-};
-
 React.useEffect(() => {
     async function getHour(){ 
         await getGoldenHour();
@@ -37,6 +29,8 @@ const validateInput = (input: SolarInput) => {
 }
 
 const [date_val, updateDate] = React.useState<number|null>(null);
+const [location_val, updateLocation] = React.useState<any|null>(null);
+const [location_options, updateLocationOptions] = React.useState<any|null>(null);
 const buttonClicked = async () => {
     if(!props.submitClicked){
         await props.setSubmitClicked(true);
@@ -62,45 +56,40 @@ const getGoldenHour = async () => {
         }
     }
 }
-const handleLocation = (val: string | undefined) => {
-    geoCodingService.forwardGeocode({
-        query: val  
-      })
-        .send()
-        .then((response: { body: any; }) => {
-          // GeoJSON document with geocoding matches
-          const match = response.body;
-          console.log(match);
-        });
-}
-const inputParent: IStackTokens = {childrenGap: 5};
+    const handleLocationSearch = (val: string | undefined) => {
+        geoCodingService.forwardGeocode({
+            query: val  
+        })
+            .send()
+            .then((response: { body: any; }) => {
+            // GeoJSON document with geocoding matches
+            const match = response.body.features;
+            console.log('match',match);
+            const match_dropdown_options = match.map((val:any) => {
+                    return {value:val.center ,label: val.place_name} 
+            });
+            console.log('match text',match_dropdown_options);
+
+            updateLocationOptions(match_dropdown_options);
+            });
+    }
+    const handleLocationSelect = (val: any) => {
+        console.log(val);
+        updateLocation(val);
+    }
     return(
-        <div>
-            <Stack tokens={inputParent}>
-                <Stack.Item styles = {inputItem}>
-                    <TextField label="Location" value={props.location} onChange={(e, val)=> handleLocation(val)}/>
-                </Stack.Item>
-                <Stack.Item styles = {inputItem}>
-                    <TextField label="Latitude" value={props.lat.toFixed(2)} onChange={(e,val)=>props.setLat(val!==undefined? parseFloat(val): null)}/>
-                </Stack.Item>
-                <Stack.Item styles = {inputItem}>
-                    <TextField label="Longitude" value={props.long.toFixed(2)} onChange={(e,val)=>props.setLong(val!==undefined? parseFloat(val): null)}/>
-                </Stack.Item>
-                <Stack.Item styles = {inputItem}>
-                    <DatePicker
-                        firstDayOfWeek={DayOfWeek.Monday}
-                        placeholder="Select a date..."
-                        ariaLabel="Select a date"
-                        strings={defaultDatePickerStrings}
-                        onSelectDate={ (val) => updateDate(val!==undefined && val!==null? val.getTime()/1000:null) }
-                        label = "Date:"
-                    />
-                </Stack.Item>
-                <Stack.Item styles = {inputItem}>
-                    <PrimaryButton text="Submit" onClick={buttonClicked}/>
-                </Stack.Item>
-            </Stack>
-        </div>
+        <Space direction="vertical">
+            <AutoComplete
+                options={location_options}
+                onSelect={(val)=>handleLocationSelect(val)}
+                onSearch={(val)=>handleLocationSearch(val)}
+                placeholder="Search Location"
+                value={location_val.label}
+                style = {{width: 200, textAlign: 'left'}}
+            />
+                <DatePicker style={{ width: 200 }} onChange={ (val) => updateDate(val!==undefined && val!==null? val.unix()/1000 : null) } />
+                <Button type="primary">Submit</Button>
+        </Space>
     );
 }
 
