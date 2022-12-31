@@ -1,5 +1,5 @@
 import { Map, MapRef, Marker, useMap } from 'react-map-gl';
-import React, { useRef } from 'react';
+import React, { useRef, useEffect} from 'react';
 function satMapTiler(x:number,y:number,z:number){return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`};
 function topoMapTiler(x:number,y:number,z:number){return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/${z}/${y}/${x}`};
 const MapHolder = (props:any) => {
@@ -13,6 +13,9 @@ const MapHolder = (props:any) => {
     fill: 'rgb(0, 120, 212)',
     stroke: 'none'
   };
+  useEffect(() => {
+    handleLoad();
+  });
     const updatePos = (lat:number, lng:number) => {
           if(mapRef && mapRef.current != null){
             console.log("updated: ", lat, lng);

@@ -13,7 +13,7 @@ React.useEffect(() => {
         await getGoldenHour();
     }
     getHour();
-}, [props.lat,props.long, props.submitClicked]);
+}, [props.lat,props.long, props.submitClicked, props.setLat, props.setLong]);
 const validateInput = (input: SolarInput) => {
     if(input === null || input.date === null || input.lat === null || input.long === null){
         return false;
@@ -75,16 +75,22 @@ const getGoldenHour = async () => {
     }
     const handleLocationSelect = (val: any) => {
         console.log(val);
-        updateLocation(val);
+        location_options.forEach((option: any) => {
+            if(option.value == val){
+                updateLocation(option)
+                props.setLong(option.value[0]);
+                props.setLat(option.value[1]);
+            }
+        })
     }
     return(
         <Space direction="vertical">
             <AutoComplete
                 options={location_options}
-                onSelect={(val)=>handleLocationSelect(val)}
+                onSelect={(val, label)=>handleLocationSelect(val)}
                 onSearch={(val)=>handleLocationSearch(val)}
                 placeholder="Search Location"
-                value={location_val.label}
+                value={location_val?.label}
                 style = {{width: 200, textAlign: 'left'}}
             />
                 <DatePicker style={{ width: 200 }} onChange={ (val) => updateDate(val!==undefined && val!==null? val.unix()/1000 : null) } />
