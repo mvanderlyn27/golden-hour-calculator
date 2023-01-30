@@ -2,12 +2,57 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
-import Link from 'next/link';
+import { Layout }  from "antd";
+const { Sider, Content } = Layout;
+import * as React from 'react'
+import { Divider } from 'antd';
+import { Map, MapRef, Marker, useMap } from 'react-map-gl';
+import axios from 'axios'
+import { AutoComplete, Space, DatePicker, Button, Typography } from 'antd';
+const {Text, Title} =  Typography;
+const mbxClient = require('@mapbox/mapbox-sdk');
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 
+const baseClient = mbxClient({ accessToken: 'pk.eyJ1IjoibXZhbmRlcmx5bjI3IiwiYSI6ImNsYzJ4a3Z0czByeXUzeGw5Y2pwa20zYnQifQ.xg9KR9YUbF5fpmpXHwyLpA' });
+const geoCodingService = mbxGeocoding(baseClient);
 
 const inter = Inter({ subsets: ['latin'] })
 
+type SolarInput = {
+    lat: number|null;
+    long: number| null;
+    date: number| null;
+}
+type SolarOutput = {
+    start_time_morning: number,
+    end_time_morning: number,
+    start_time_night: number,
+    end_time_night: number,
+}
+
+
 export default function Home() {
+   let userLat = null; 
+ let userLong = null; 
+  React.useEffect( ()=>{
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position:any)=>{
+        console.log(position.coords.latitude);
+        console.log(position.coords.longitude);
+        if(position?.coords?.latitude !=null && position?.coords?.longitude != null){
+        setLat(position.coords.latitude);
+        setLong(position.coords.longitude);
+        }else{
+          console.log('error loading lat/lng');
+        }
+      });
+    } else {
+      console.log('user declined geolocation');
+    }
+  }, []);
+  
+  const [lat, setLat] = React.useState<number|null>(39);
+  const [long, setLong] = React.useState<number|null>(-77);
   return (
     <>
       <Head>
@@ -17,100 +62,210 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={200}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={400}
-            height={37}
-            priority
-          />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <h1 className="title">
-            Read <Link href="/posts/first-post">this page!</Link>
-          </h1>
-
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
+                     <Layout>
+              <Sider style={{ background: "#fff", height: "100vh" }} width={'40vw'} >
+                <LeftBar lat={lat} long={long} setLat={setLat} setLong={setLong}/>
+              </Sider>
+              <Content>
+                <MapHolder lat={lat} long={long} setLat={setLat} setLong={setLong}/>
+              </Content>
+            </Layout>
       </main>
     </>
   )
+}
+
+
+const LeftBar = (props:any) => {
+  const [solarOutput, setSolarOutput] = React.useState<SolarOutput | null>(null);
+  const [submitClicked, setSubmitClicked] = React.useState<true | false>(false);
+    return(
+        <div>
+            <Layout style={{ height: "100vh"}}>
+                <Content>
+                    <Title>PhotoSpot</Title>
+                    <Divider/>
+                </Content>
+                <Content>
+                    <Input submitClicked={submitClicked} setSubmitClicked={setSubmitClicked} setSolarOutput={setSolarOutput} lat={props.lat} long={props.long} setLat={props.setLat} setLong={props.setLong} />
+                </Content>
+                    <Divider/>
+                <Content>
+                    <Output submitClicked={submitClicked} solarOutput={solarOutput} />
+                </Content>
+            </Layout>
+        </div>
+
+    );
+}
+const Input = (props:any) => {
+React.useEffect(() => {
+    async function getHour(){ 
+        await getGoldenHour();
+    }
+    getHour();
+}, [props.lat,props.long, props.submitClicked, props.setLat, props.setLong]);
+const validateInput = (input: SolarInput) => {
+    if(input === null || input.date === null || input.lat === null || input.long === null){
+        return false;
+    }
+    if(input.lat < -90 || input.lat > 90){
+        return false;
+    }
+    if(input.long <-180 || input.long > 180){
+        return false
+    }
+    //maybe some date calc?
+    return true
+}
+
+const [date_val, updateDate] = React.useState<number|null>(null);
+const [location_val, updateLocation] = React.useState<any|null>(null);
+const [location_options, updateLocationOptions] = React.useState<any|null>(null);
+const buttonClicked = async () => {
+    if(!props.submitClicked){
+        await props.setSubmitClicked(true);
+    }
+}
+const getGoldenHour = async () => {
+    if(props.submitClicked){ 
+        const currentInput:SolarInput = {lat: props.lat, long: props.long, date: date_val};
+        if(validateInput(currentInput)){
+            //send request to backend
+            //update frontend
+            try{
+                let res:SolarOutput = (await axios.put('/api/v1/golden-hour-times',currentInput)).data;
+                props.setSolarOutput(res);
+            }
+            catch(e){
+                console.log(e);
+            }
+        }
+        else{
+            console.log("error validating input");
+            //display error
+        }
+    }
+}
+    const handleLocationSearch = (val: string | undefined) => {
+        if(val !== location_val?.label){
+            updateLocation({value: [], label: val});
+            geoCodingService.forwardGeocode({
+                query: val  
+            })
+                .send()
+                .then((response: { body: any; }) => {
+                // GeoJSON document with geocoding matches
+                const match = response.body.features;
+                console.log('match',match);
+                const match_dropdown_options = match.map((val:any) => {
+                        return {value:val.center ,label: val.place_name} 
+                });
+                console.log('match text',match_dropdown_options);
+
+                updateLocationOptions(match_dropdown_options);
+                });
+        }
+    }
+    const handleLocationSelect = (val: any) => {
+        console.log(val);
+        location_options.forEach((option: any) => {
+            if(option.value == val){
+                updateLocation(option)
+                props.setLong(option.value[0]);
+                props.setLat(option.value[1]);
+            }
+        })
+    }
+    return(
+        <Space direction="vertical">
+            <AutoComplete
+                options={location_options}
+                onSelect={(val, label)=>handleLocationSelect(val)}
+                onSearch={(val)=>handleLocationSearch(val)}
+                placeholder="Search Location"
+                value={location_val?.label}
+                style = {{width: 200, textAlign: 'left'}}
+            />
+                <DatePicker style={{ width: 200 }} onChange={ (val) => updateDate(val!==undefined && val!==null? val.unix()/1000 : null) } />
+                <Button type="primary">Submit</Button>
+        </Space>
+    );
+}
+
+const MapHolder = (props:any) => {
+  let mapRef = React.useRef<MapRef>(null);  
+  let zoomLevel = 15;
+  const ICON = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-10S2,4.5,2,10c0,2,0.6,3.9,1.6,5.4c0,0.1,0.1,0.2,0.2,0.3
+  c0,0,0.1,0.1,0.1,0.2c0.2,0.3,0.4,0.6,0.7,0.9c2.6,3.1,7.4,7.6,7.4,7.6s4.8-4.5,7.4-7.5c0.2-0.3,0.5-0.6,0.7-0.9
+  C20.1,15.8,20.2,15.8,20.2,15.7z`;
+  const pinStyle = {
+    cursor: 'pointer',
+    fill: 'rgb(0, 120, 212)',
+    stroke: 'none'
+  };
+  React.useEffect(() => {
+    handleLoad();
+  });
+    const updatePos = (lat:number, lng:number) => {
+          if(mapRef && mapRef.current != null){
+            console.log("updated: ", lat, lng);
+            mapRef.current.flyTo({
+              center: [lng, lat],
+              zoom: zoomLevel,
+              speed: 2 
+            })
+        }
+    }
+    const handleLoad = () =>{
+      updatePos(props.lat, props.long);
+    }
+    const handleClick = (e:any) => {
+      props.setLat(e.lngLat.lat);
+      props.setLong(e.lngLat.lng);
+      updatePos(e.lngLat.lat, e.lngLat.lng);
+    }
+    return (
+      <Map
+      initialViewState={{
+        longitude: props.long,
+        latitude: props.lat,
+        zoom: zoomLevel
+      }}
+      ref = {mapRef}
+      mapboxAccessToken='pk.eyJ1IjoibXZhbmRlcmx5bjI3IiwiYSI6ImNsYzJ4a3Z0czByeXUzeGw5Y2pwa20zYnQifQ.xg9KR9YUbF5fpmpXHwyLpA'
+      mapStyle="mapbox://styles/mapbox/light-v11"
+      onClick= {(e)=> handleClick(e)} 
+      onLoad= {()=> handleLoad()}
+      >
+      <Marker longitude={props.long} latitude={props.lat} anchor="center" >
+        <svg height={20} viewBox="0 0 24 24" style={pinStyle}>
+          <path d={ICON} />
+        </svg>
+      </Marker>
+    </Map>
+    );
+}
+
+const Output = (props: any) => {
+
+    const parseDate = (timestamp: number) =>{
+       let date = new Date(timestamp*1000);
+        return date.getHours()+':'+("0"+date.getMinutes()).substr(-2)+':'+("0"+date.getSeconds()).substr(-2);
+    }
+    return(
+            <Space direction="vertical">
+            {props.solarOutput === null || !props.submitClicked ?  
+                <Typography>
+                    <Text>Enter Information above to see golden hour</Text>
+                </Typography>
+                :
+                <Typography>
+                      <Text>Morning: {parseDate(props.solarOutput.start_time_morning)}-{parseDate(props.solarOutput.end_time_morning)}</Text>
+                      <Text >Night: {parseDate(props.solarOutput.start_time_night)}-{parseDate(props.solarOutput.end_time_night)}</Text>
+                </Typography> 
+            }
+            </Space>
+
+    );
 }
