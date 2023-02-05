@@ -87,7 +87,7 @@ const getGoldenHour = async () => {
         })
     }
     return(
-        <Space direction="vertical">
+        <Space direction="vertical" size="middle" style={{alignItems: "center", display: "flex"}}>
             <AutoComplete
                 options={location_options}
                 onSelect={(val, label)=>handleLocationSelect(val)}

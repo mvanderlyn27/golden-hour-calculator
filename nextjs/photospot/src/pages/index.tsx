@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import { Inter } from '@next/font/google'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import styles from '@/styles/Home.module.css'
 import { Layout }  from "antd";
 const { Sider, Content } = Layout;
@@ -16,7 +16,6 @@ const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const baseClient = mbxClient({ accessToken: 'pk.eyJ1IjoibXZhbmRlcmx5bjI3IiwiYSI6ImNsYzJ4a3Z0czByeXUzeGw5Y2pwa20zYnQifQ.xg9KR9YUbF5fpmpXHwyLpA' });
 const geoCodingService = mbxGeocoding(baseClient);
 
-const inter = Inter({ subsets: ['latin'] })
 
 type SolarInput = {
     lat: number|null;
@@ -83,7 +82,7 @@ const LeftBar = (props:any) => {
         <div>
             <Layout style={{ height: "100vh"}}>
                 <Content>
-                    <Title>PhotoSpot</Title>
+                    <Title style={{textAlign: "center"}}>PhotoSpot</Title>
                     <Divider/>
                 </Content>
                 <Content>
@@ -178,7 +177,7 @@ const getGoldenHour = async () => {
         })
     }
     return(
-        <Space direction="vertical">
+        <Space direction="vertical" size="middle" align="center" style={{width: "100%"}} >
             <AutoComplete
                 options={location_options}
                 onSelect={(val, label)=>handleLocationSelect(val)}
@@ -254,7 +253,7 @@ const Output = (props: any) => {
         return date.getHours()+':'+("0"+date.getMinutes()).substr(-2)+':'+("0"+date.getSeconds()).substr(-2);
     }
     return(
-            <Space direction="vertical">
+            <Space direction="vertical" align="center" style={{width:"100%"}}>
             {props.solarOutput === null || !props.submitClicked ?  
                 <Typography>
                     <Text>Enter Information above to see golden hour</Text>
@@ -262,7 +261,7 @@ const Output = (props: any) => {
                 :
                 <Typography>
                       <Text>Morning: {parseDate(props.solarOutput.start_time_morning)}-{parseDate(props.solarOutput.end_time_morning)}</Text>
-                      <Text >Night: {parseDate(props.solarOutput.start_time_night)}-{parseDate(props.solarOutput.end_time_night)}</Text>
+                      <Text>Night: {parseDate(props.solarOutput.start_time_night)}-{parseDate(props.solarOutput.end_time_night)}</Text>
                 </Typography> 
             }
             </Space>
