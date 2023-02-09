@@ -24,6 +24,6 @@ export default function handler(
         res.send({goldenHourDawnStart: solarTimes.goldenHourDawnStart, goldenHourDawnEnd: solarTimes.goldenHourDawnEnd, goldenHourDuskStart:solarTimes.goldenHourDuskStart, goldenHourDuskEnd: solarTimes.goldenHourDuskEnd})
     }
     else{
-        res.status(400).send({ error: 'Need to use POST' });
+        res.status(400).send({ error: 'Need to use PUT' });
     }
 }

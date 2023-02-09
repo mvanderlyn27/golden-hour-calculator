@@ -133,7 +133,7 @@ const getGoldenHour = async () => {
             //send request to backend
             //update frontend
             try{
-                let res:SolarOutput = (await axios.put('/api/v1/golden-hour-times',currentInput)).data;
+                let res:SolarOutput = (await axios.put('/api/v1/get-golden-hour',currentInput)).data;
                 props.setSolarOutput(res);
             }
             catch(e){
@@ -187,7 +187,7 @@ const getGoldenHour = async () => {
                 style = {{width: 200, textAlign: 'left'}}
             />
                 <DatePicker style={{ width: 200 }} onChange={ (val) => updateDate(val!==undefined && val!==null? val.unix()/1000 : null) } />
-                <Button type="primary">Submit</Button>
+                <Button type="primary" onClick={buttonClicked}>Submit</Button>
         </Space>
     );
 }
