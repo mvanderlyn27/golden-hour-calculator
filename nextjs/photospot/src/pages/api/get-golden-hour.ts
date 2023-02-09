@@ -10,10 +10,10 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-    if(req.method === "POST"){
-
+    if(req.method === "PUT"){
+      
     }
     else{
-        res.status(400).send({ error: 'Need to use POST' });
+        res.status(400).send({ error: 'Need to use PUT' });
     }
 }
