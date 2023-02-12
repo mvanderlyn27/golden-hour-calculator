@@ -3,9 +3,9 @@ import {Space, Typography } from 'antd';
 const {Text} = Typography;
 
 const Output = (props: any) => {
-
     const parseDate = (timestamp: number) =>{
-       let date = new Date(timestamp*1000);
+        console.log(timestamp);
+        let date = new Date(timestamp);
         return date.getHours()+':'+("0"+date.getMinutes()).substr(-2)+':'+("0"+date.getSeconds()).substr(-2);
     }
     return(
@@ -16,8 +16,8 @@ const Output = (props: any) => {
                 </Typography>
                 :
                 <Typography>
-                      <Text>Morning: {parseDate(props.solarOutput.start_time_morning)}-{parseDate(props.solarOutput.end_time_morning)}</Text>
-                      <Text>Night: {parseDate(props.solarOutput.start_time_night)}-{parseDate(props.solarOutput.end_time_night)}</Text>
+                      <Text>Morning: {parseDate(props.solarOutput.goldenHourDawnStart)}-{parseDate(props.solarOutput.goldenHourDawnEnd)}</Text>
+                      <Text>Night: {parseDate(props.solarOutput.goldenHourDuskStart)}-{parseDate(props.solarOutput.goldenHourDuskEnd)}</Text>
                 </Typography> 
             }
             </Space>

@@ -35,6 +35,7 @@ const buttonClicked = async () => {
 const getGoldenHour = async () => {
         const currentInput:SolarInput = {lat: props.lat, long: props.long, date: date_val};
         if(validateInput(currentInput)){
+            console.log('current input',currentInput);
             //send request to backend
             //update frontend
             try{
@@ -90,7 +91,7 @@ const getGoldenHour = async () => {
                 value={location_val?.label}
                 style = {{width: 200, textAlign: 'left'}}
             />
-                <DatePicker style={{ width: 200 }} onChange={ (val) => updateDate(val!==undefined && val!==null? val.unix()/1000 : null) } />
+                <DatePicker style={{ width: 200 }} onChange={ (val) => updateDate(val!==undefined && val!==null? val.unix() : null) } />
                 <Button type="primary" onClick={async function(){await buttonClicked()}}>Submit</Button>
         </Space>
     );

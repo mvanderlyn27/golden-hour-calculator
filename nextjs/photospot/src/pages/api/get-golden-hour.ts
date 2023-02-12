@@ -21,7 +21,10 @@ export default function handler(
         let long = req.body.long;
         console.log(date,lat,long);
         let solarTimes = SunCalc.getSunTimes(date, lat,long,0, false, true);
-        res.send({goldenHourDawnStart: solarTimes.goldenHourDawnStart, goldenHourDawnEnd: solarTimes.goldenHourDawnEnd, goldenHourDuskStart:solarTimes.goldenHourDuskStart, goldenHourDuskEnd: solarTimes.goldenHourDuskEnd})
+        console.log(solarTimes);
+        const out = {goldenHourDawnStart: solarTimes.goldenHourDawnStart.ts, goldenHourDawnEnd: solarTimes.goldenHourDawnEnd.ts, goldenHourDuskStart:solarTimes.goldenHourDuskStart.ts, goldenHourDuskEnd: solarTimes.goldenHourDuskEnd.ts};
+        console.log('out',out);
+        res.send(out);
     }
     else{
         res.status(400).send({ error: 'Need to use PUT' });
