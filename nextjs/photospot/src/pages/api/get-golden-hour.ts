@@ -20,7 +20,7 @@ export default function handler(
         let lat = req.body.lat;
         let long = req.body.long;
         console.log(date,lat,long);
-        let solarTimes = SunCalc.getSunTimes(date, lat,long,0, false, true);
+        let solarTimes = SunCalc.getSunTimes(date*1000, lat,long,0, false, true);
         console.log(solarTimes);
         const out = {goldenHourDawnStart: solarTimes.goldenHourDawnStart.ts, goldenHourDawnEnd: solarTimes.goldenHourDawnEnd.ts, goldenHourDuskStart:solarTimes.goldenHourDuskStart.ts, goldenHourDuskEnd: solarTimes.goldenHourDuskEnd.ts};
         console.log('out',out);
