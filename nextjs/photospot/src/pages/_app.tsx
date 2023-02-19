@@ -1,4 +1,3 @@
-import * as dotenv from 'dotenv';
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
@@ -9,7 +8,6 @@ import { useState } from 'react'
 export default function App({ Component, pageProps }: AppProps<{
   initialSession: Session
 }>) {
-  dotenv.config()
 
   const [supabaseClient] = useState(() => createBrowserSupabaseClient())
 

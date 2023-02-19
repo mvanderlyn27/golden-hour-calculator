@@ -4,8 +4,8 @@ import { SolarInput, SolarOutput } from '../types/types';
 import { Typography, Layout } from 'antd';
 const { Sider, Content } = Layout;
 const {Title} = Typography;
-import Input from '../components/golden-hour-form/golden-hour-form';
-import Output from '../components/golden-hour-display/golden-hour-display';
+import Input from '../components/golden-hour-form/goldenHourForm';
+import Output from '../components/golden-hour-display/goldenHourDisplay';
 import MapHolder from '../components/map-holder/map-holder';
 import { Divider, Space } from 'antd';
 import * as React from 'react'
