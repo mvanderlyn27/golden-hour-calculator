@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useUser, useSupabaseClient, Session } from '@supabase/auth-helpers-react'
 import { Database } from '../../types/database'
-type Profiles = Database['public']['Tables']['users']['Row']
+import  Avatar  from '../avatar/avatar';
+type Profiles = Database['public']['Tables']['profiles']['Row']
 
 export default function Account({ session }: { session: Session }) {
   const supabase = useSupabaseClient<Database>()
   const user = useUser()
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState<Profiles['username']>(null)
-  // const [website, setWebsite] = useState<Profiles['website']>(null)
-  // const [avatar_url, setAvatarUrl] = useState<Profiles['avatar_url']>(null)
+  const [website, setWebsite] = useState<Profiles['website']>(null)
+  const [avatar_url, setAvatarUrl] = useState<Profiles['avatar_url']>(null)
 
   useEffect(() => {
     getProfile()
@@ -21,9 +22,8 @@ export default function Account({ session }: { session: Session }) {
       if (!user) throw new Error('No user')
 
       let { data, error, status } = await supabase
-        .from('users')
-        //.select(`username, website, avatar_url`)
-        .select(`username`)
+        .from('profiles')
+        .select(`username, website, avatar_url`)
         .eq('id', user.id)
         .single()
 
@@ -33,8 +33,8 @@ export default function Account({ session }: { session: Session }) {
 
       if (data) {
         setUsername(data.username)
-        // setWebsite(data.website)
-        // setAvatarUrl(data.avatar_url)
+        setWebsite(data.website)
+        setAvatarUrl(data.avatar_url)
       }
     } catch (error) {
       alert('Error loading user data!')
@@ -46,12 +46,12 @@ export default function Account({ session }: { session: Session }) {
 
   async function updateProfile({
     username,
-    // website,
-    // avatar_url,
+    website,
+    avatar_url,
   }: {
     username: Profiles['username']
-    // website: Profiles['website']
-    // avatar_url: Profiles['avatar_url']
+    website: Profiles['website']
+    avatar_url: Profiles['avatar_url']
   }) {
     try {
       setLoading(true)
@@ -60,8 +60,8 @@ export default function Account({ session }: { session: Session }) {
       const updates = {
         id: user.id,
         username,
-        // website,
-        // avatar_url,
+        website,
+        avatar_url,
         updated_at: new Date().toISOString(),
       }
 
@@ -78,6 +78,14 @@ export default function Account({ session }: { session: Session }) {
 
   return (
     <div className="form-widget">
+        <Avatar
+      uid={session.user.id}
+      url={avatar_url}
+      size={150}
+      onUpload={(url: string | null) => {
+        setAvatarUrl(url)
+        updateProfile({ username, website, avatar_url: url })
+      }}/> 
       <div>
         <label htmlFor="email">Email</label>
         <input id="email" type="text" value={session.user.email} disabled />
@@ -96,16 +104,15 @@ export default function Account({ session }: { session: Session }) {
         <input
           id="website"
           type="website"
-          // value={website || ''}
-          // onChange={(e) => setWebsite(e.target.value)}
+          value={website || ''}
+          onChange={(e) => setWebsite(e.target.value)}
         />
       </div>
 
       <div>
         <button
           className="button primary block"
-          // onClick={() => updateProfile({ username, website, avatar_url })}
-          onClick={() => updateProfile({ username})}
+          onClick={() => updateProfile({ username, website, avatar_url })}
           disabled={loading}
         >
           {loading ? 'Loading ...' : 'Update'}
